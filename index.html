@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>NOSY HYPE — The art of fragrance · Parfums d'exception</title>
+  <meta name="description" content="NOSY HYPE, parfums d'exception à Madagascar. Découvrez la collection, commandez sur WhatsApp, demandez un parfum précis en privé. Acompte de 50 % par MVOLA.">
+  <meta name="theme-color" content="#050505">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="NOSY HYPE — The art of fragrance">
+  <meta property="og:description" content="Parfums d'exception. Commande sur WhatsApp, acompte de 50 % par MVOLA.">
+  <meta property="og:image" content="assets/img/og-image.jpg">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+
+  <link rel="preload" href="assets/fonts/cormorant-garamond-latin-300-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/manrope-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" as="image" href="assets/img/hero-tall.webp" media="(max-width: 767px)">
+  <link rel="preload" as="image" href="assets/img/hero-wide.webp" media="(min-width: 768px)">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <!-- ============ ICONS (inline sprite) ============ -->
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-wa" viewBox="0 0 24 24"><path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 8h13l-1 12.5h-11L5.5 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></g></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-arrow-ur" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7M8.5 7H17v8.5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H9"/></g></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></g></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M17 7V5.5A1.5 1.5 0 0 0 15.5 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H4"/><path d="M16 13.5h1.5"/></g></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.5c.7 4.8 3 7.1 7.8 7.8-4.8.7-7.1 3-7.8 7.8-.7-4.8-3-7.1-7.8-7.8 4.8-.7 7.1-3 7.8-7.8Z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></g></symbol>
+    <symbol id="i-bottle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M10 2.5h4v3h-4z"/><path d="M9 5.5h6v2H9z"/><rect x="5" y="7.5" width="14" height="14" rx="3"/><path d="M9 14h6"/></g></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6M9 16h3"/></g></symbol>
+    <symbol id="i-percent" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18.5 5.5l-13 13"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/></g></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></g></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8v.2"/></g></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-6 4.5v-15Z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M5 12h14"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="m14.5 6-6 6 6 6"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="m9.5 6 6 6-6 6"/></symbol>
+  </svg>
+
+  <a class="skip-link" href="#main">Aller au contenu</a>
+
+  <!-- ============ LOADER ============ -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader__inner">
+      <p class="loader__logo">NOSY HYPE</p>
+      <div class="loader__bar"><span id="loader-progress"></span></div>
+      <p class="loader__tag">The art of fragrance</p>
+    </div>
+  </div>
+
+  <div class="scroll-progress" aria-hidden="true"><span></span></div>
+  <div class="cursor-glow" aria-hidden="true"></div>
+
+  <!-- ============ NAVIGATION ============ -->
+  <header class="header" id="header">
+    <div class="header__bar">
+      <a href="#accueil" class="logo" aria-label="NOSY HYPE — retour à l'accueil">NOSY <span>HYPE</span></a>
+
+      <nav class="nav" aria-label="Navigation principale">
+        <ul class="nav__list">
+          <li><a class="nav__link" href="#accueil" data-nav="accueil">Accueil</a></li>
+          <li><a class="nav__link" href="#parfums" data-nav="parfums">Parfums</a></li>
+          <li><a class="nav__link" href="#a-propos" data-nav="a-propos">À propos</a></li>
+          <li><a class="nav__link" href="#contact" data-nav="contact">Contact</a></li>
+        </ul>
+        <span class="nav__indicator" aria-hidden="true"></span>
+      </nav>
+
+      <div class="header__actions">
+        <a class="icon-btn icon-btn--wa" data-wa="Bonjour NOSY HYPE, j'aimerais avoir des informations sur vos parfums." href="https://wa.me/261380582719" target="_blank" rel="noopener" aria-label="Écrire à NOSY HYPE sur WhatsApp">
+          <svg class="i"><use href="#i-wa"/></svg>
+        </a>
+        <button class="icon-btn bag-btn" type="button" data-bag-open aria-label="Ma sélection : 0 article">
+          <svg class="i"><use href="#i-bag"/></svg>
+          <span class="bag-count" data-bag-count>0</span>
+        </button>
+        <button class="burger" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Ouvrir le menu">
+          <span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ MOBILE MENU ============ -->
+  <div class="mmenu" id="mobile-menu" aria-label="Menu" hidden>
+    <nav class="mmenu__nav" aria-label="Navigation mobile">
+      <ol>
+        <li><a href="#accueil" data-nav="accueil"><span class="mmenu__num">01</span><span class="mmenu__txt">Accueil</span></a></li>
+        <li><a href="#parfums" data-nav="parfums"><span class="mmenu__num">02</span><span class="mmenu__txt">Parfums</span></a></li>
+        <li><a href="#a-propos" data-nav="a-propos"><span class="mmenu__num">03</span><span class="mmenu__txt">À propos</span></a></li>
+        <li><a href="#contact" data-nav="contact"><span class="mmenu__num">04</span><span class="mmenu__txt">Contact</span></a></li>
+      </ol>
+    </nav>
+    <div class="mmenu__foot">
+      <a class="btn btn--gold btn--block" data-wa="Bonjour NOSY HYPE, j'aimerais commander un parfum." href="https://wa.me/261380582719" target="_blank" rel="noopener">
+        <svg class="i"><use href="#i-wa"/></svg> Commander sur WhatsApp
+      </a>
+      <a class="mmenu__line" href="#commander"><svg class="i"><use href="#i-percent"/></svg> Acompte 50 % · MVOLA <strong data-config="mvolaNumber">038 05 827 19</strong></a>
+      <a class="mmenu__line" data-mail href="mailto:alaqmarfazele579@gmail.com"><svg class="i"><use href="#i-mail"/></svg> <span data-config="email">alaqmarfazele579@gmail.com</span></a>
+    </div>
+  </div>
+
+  <main id="main">
+
+    <!-- ============ HERO / ACCUEIL ============ -->
+    <section class="hero" id="accueil" data-spy="accueil" aria-labelledby="hero-title">
+      <div class="hero__frame">
+        <div class="hero__media" data-parallax="0.18">
+          <picture>
+            <source media="(max-width: 767px)" srcset="assets/img/hero-tall.webp" width="1080" height="1920">
+            <img src="assets/img/hero-wide.webp" width="2400" height="1350" alt="Trois flacons de parfum posés sur un marbre noir, dans une lumière dorée et une fumée légère" fetchpriority="high">
+          </picture>
+        </div>
+        <div class="hero__veil" aria-hidden="true"></div>
+
+        <div class="hero__content">
+          <p class="eyebrow hero__eyebrow"><svg class="i"><use href="#i-spark"/></svg> Parfums d'exception · Madagascar</p>
+          <h1 class="hero__title" id="hero-title">
+            <span class="line"><span>L'art</span></span>
+            <span class="line"><span>du <em>parfum</em>.</span></span>
+          </h1>
+          <p class="hero__lead">Des fragrances rares, choisies avec exigence. Commandez en quelques messages sur WhatsApp — ou demandez-nous en privé le parfum que vous cherchez.</p>
+          <div class="hero__ctas">
+            <a href="#parfums" class="btn btn--gold">Découvrir les parfums <svg class="i"><use href="#i-arrow"/></svg></a>
+            <a class="btn btn--ghost" data-wa="Bonjour NOSY HYPE, j'aimerais commander un parfum." href="https://wa.me/261380582719" target="_blank" rel="noopener">
+              <svg class="i"><use href="#i-wa"/></svg> Commander sur WhatsApp
+            </a>
+          </div>
+          <ul class="hero__facts" aria-label="L'essentiel">
+            <li><svg class="i"><use href="#i-chat"/></svg> Commande sur WhatsApp</li>
+            <li><svg class="i"><use href="#i-percent"/></svg> Acompte 50 % par MVOLA</li>
+            <li><svg class="i"><use href="#i-search"/></svg> Demandes privées</li>
+          </ul>
+        </div>
+
+        <button class="hero__feature" type="button" data-open-product="nuit-d-ambre" aria-label="Découvrir le parfum signature Nuit d'Ambre">
+          <img src="assets/img/perfumes/nuit-d-ambre.webp" alt="" width="1200" height="1500" loading="lazy">
+          <span class="hero__feature-txt">
+            <span class="hero__feature-kicker">Signature</span>
+            <span class="hero__feature-name">Nuit d'Ambre</span>
+            <span class="hero__feature-cta">Découvrir <svg class="i"><use href="#i-arrow-ur"/></svg></span>
+          </span>
+        </button>
+
+      </div>
+    </section>
+
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>Ambre</span><b>✦</b><span>Oud</span><b>✦</b><span>Rose</span><b>✦</b><span>Ylang-ylang</span><b>✦</b><span>Vanille</span><b>✦</b><span>Vétiver</span><b>✦</b><span>Santal</span><b>✦</b><span>Musc</span><b>✦</b><span>Cuir</span><b>✦</b>
+        <span>Ambre</span><b>✦</b><span>Oud</span><b>✦</b><span>Rose</span><b>✦</b><span>Ylang-ylang</span><b>✦</b><span>Vanille</span><b>✦</b><span>Vétiver</span><b>✦</b><span>Santal</span><b>✦</b><span>Musc</span><b>✦</b><span>Cuir</span><b>✦</b>
+      </div>
+    </div>
+
+    <!-- ============ PARFUMS / COLLECTION ============ -->
+    <section class="section collection" id="parfums" data-spy="parfums" aria-labelledby="parfums-title">
+      <div class="container">
+        <header class="section__head">
+          <div>
+            <p class="eyebrow reveal"><span class="eyebrow__num">01</span> La collection</p>
+            <h2 class="section__title" id="parfums-title" data-split>Nos <em>parfums</em></h2>
+          </div>
+          <p class="section__lead reveal">Touchez un flacon pour voir ses notes, son prix et le commander directement sur WhatsApp.</p>
+        </header>
+
+        <div class="filters reveal" role="group" aria-label="Filtrer les parfums">
+          <div class="filters__list" id="filters"></div>
+          <p class="filters__count" id="product-count" aria-live="polite"></p>
+        </div>
+
+        <div class="grid" id="product-grid"></div>
+        <noscript>
+          <p class="noscript">Activez JavaScript pour afficher la collection, ou écrivez-nous directement sur WhatsApp : <a href="https://wa.me/261380582719">+261 38 05 827 19</a>.</p>
+        </noscript>
+
+        <p class="collection__note reveal"><svg class="i"><use href="#i-info"/></svg> Vous ne trouvez pas votre parfum ? <a href="#demande-privee" class="link">Demandez-le en privé sur WhatsApp</a>.</p>
+      </div>
+    </section>
+
+    <!-- ============ DEMANDE PRIVÉE ============ -->
+    <section class="section private" id="demande-privee" data-spy="parfums" aria-labelledby="prive-title">
+      <div class="container">
+        <div class="private__frame reveal" data-reveal="zoom">
+          <div class="private__media">
+            <img src="assets/img/prive.webp" width="1200" height="1500" loading="lazy" alt="Flacon de parfum sombre dans une fumée dorée" data-parallax="0.08">
+          </div>
+          <div class="private__body">
+            <p class="eyebrow reveal"><span class="eyebrow__num">02</span> Demande privée</p>
+            <h2 class="section__title" id="prive-title" data-split>Un parfum précis <em>en tête&nbsp;?</em></h2>
+            <p class="private__lead reveal">Il n'est pas dans la collection&nbsp;? <strong>Demandez-le en privé sur WhatsApp.</strong> Envoyez-nous simplement son nom : nous le recherchons pour vous, en toute discrétion, puis nous revenons vers vous avec la disponibilité et le prix.</p>
+            <ol class="mini-steps">
+              <li class="reveal"><span>1</span><div><strong>Envoyez le nom du parfum</strong> sur WhatsApp (une photo suffit aussi).</div></li>
+              <li class="reveal"><span>2</span><div><strong>Nous vérifions pour vous</strong> sa disponibilité et son prix.</div></li>
+              <li class="reveal"><span>3</span><div><strong>Vous validez</strong> avec un acompte de 50 % par MVOLA.</div></li>
+            </ol>
+            <div class="private__cta reveal">
+              <a class="btn btn--gold" data-wa="Bonjour NOSY HYPE, je recherche un parfum précis : " href="https://wa.me/261380582719" target="_blank" rel="noopener">
+                <svg class="i"><use href="#i-wa"/></svg> Demander un parfum sur WhatsApp
+              </a>
+              <p class="private__small"><svg class="i"><use href="#i-lock"/></svg> Réponse personnalisée · Discrétion assurée</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ COMMANDER & PAYER ============ -->
+    <section class="section order" id="commander" data-spy="" aria-labelledby="commander-title">
+      <div class="container">
+        <header class="section__head">
+          <div>
+            <p class="eyebrow reveal"><span class="eyebrow__num">03</span> Commander &amp; payer</p>
+            <h2 class="section__title" id="commander-title" data-split>Commander, <em>simplement</em>.</h2>
+          </div>
+          <p class="section__lead reveal">Quatre étapes, tout se passe sur WhatsApp. Un acompte de 50 % par MVOLA confirme votre commande.</p>
+        </header>
+
+        <ol class="steps">
+          <li class="step reveal" style="--d:0s">
+            <span class="step__num">01</span>
+            <svg class="i step__icon"><use href="#i-bottle"/></svg>
+            <h3>Choisissez</h3>
+            <p>Un parfum de la collection, ou le nom d'un parfum précis que vous cherchez.</p>
+          </li>
+          <li class="step reveal" style="--d:.08s">
+            <span class="step__num">02</span>
+            <svg class="i step__icon"><use href="#i-wa"/></svg>
+            <h3>Écrivez-nous sur WhatsApp</h3>
+            <p>Nous confirmons la disponibilité et le <strong>montant total</strong> de votre commande.</p>
+          </li>
+          <li class="step reveal" style="--d:.16s">
+            <span class="step__num">03</span>
+            <svg class="i step__icon"><use href="#i-wallet"/></svg>
+            <h3>Payez 50 % par MVOLA</h3>
+            <p>Envoyez l'acompte au <strong class="nowrap" data-config="mvolaNumber">038 05 827 19</strong> depuis votre téléphone.</p>
+          </li>
+          <li class="step reveal" style="--d:.24s">
+            <span class="step__num">04</span>
+            <svg class="i step__icon"><use href="#i-receipt"/></svg>
+            <h3>Envoyez la preuve</h3>
+            <p>Partagez la capture du paiement sur WhatsApp. Dès vérification, <strong>votre commande est confirmée</strong>.</p>
+          </li>
+        </ol>
+
+        <div class="pay">
+          <!-- Deposit explanation -->
+          <article class="pay__deposit reveal" aria-labelledby="deposit-title">
+            <p class="pay__big" aria-hidden="true">50<span>%</span></p>
+            <h3 id="deposit-title">Acompte obligatoire de 50 %</h3>
+            <p>Pour confirmer une commande, vous réglez <strong>la moitié du montant total</strong> par MVOLA. <strong>L'autre moitié</strong> est payée à la remise de votre parfum.</p>
+            <ul class="checks">
+              <li><svg class="i"><use href="#i-check"/></svg> Sans acompte, la commande n'est pas réservée.</li>
+              <li><svg class="i"><use href="#i-check"/></svg> Le solde de 50 % se règle à la remise.</li>
+              <li><svg class="i"><use href="#i-check"/></svg> Chaque paiement est confirmé par écrit sur WhatsApp.</li>
+            </ul>
+
+            <form class="calc" id="calc" autocomplete="off" novalidate>
+              <label for="calc-input">Calculez votre acompte</label>
+              <div class="calc__field">
+                <input id="calc-input" type="text" inputmode="numeric" placeholder="Ex. : 185 000" aria-describedby="calc-result">
+                <span>Ar</span>
+              </div>
+              <p class="calc__result" id="calc-result" aria-live="polite">
+                <span>Acompte à payer <strong data-calc="deposit">—</strong></span>
+                <span>Solde à la remise <strong data-calc="balance">—</strong></span>
+              </p>
+            </form>
+          </article>
+
+          <!-- MVOLA card -->
+          <article class="pay__mvola reveal" style="--d:.1s" aria-labelledby="mvola-title">
+            <div class="mvola-card" data-tilt>
+              <div class="mvola-card__top">
+                <span class="mvola-card__brand">MVOLA</span>
+                <span class="mvola-card__chip" aria-hidden="true"></span>
+              </div>
+              <p class="mvola-card__label" id="mvola-title">Numéro MVOLA pour l'acompte</p>
+              <p class="mvola-card__number" data-config="mvolaNumber">038 05 827 19</p>
+              <div class="mvola-card__foot">
+                <span>NOSY HYPE</span>
+                <button class="btn btn--small btn--glass" type="button" data-copy="mvola">
+                  <svg class="i"><use href="#i-copy"/></svg> <span>Copier le numéro</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="proof">
+              <h3><svg class="i"><use href="#i-receipt"/></svg> Après votre paiement</h3>
+              <p>Envoyez <strong>la capture d'écran ou la référence</strong> de la transaction MVOLA sur WhatsApp, avec votre nom. Nous confirmons votre commande dès vérification.</p>
+              <a class="btn btn--gold btn--block" data-wa="Bonjour NOSY HYPE, voici ma preuve de paiement MVOLA (acompte de 50 %) pour ma commande. Mon nom : " href="https://wa.me/261380582719" target="_blank" rel="noopener">
+                <svg class="i"><use href="#i-wa"/></svg> Envoyer ma preuve de paiement
+              </a>
+            </div>
+
+            <p class="notice" role="note">
+              <svg class="i"><use href="#i-info"/></svg>
+              <span><strong>Important :</strong> ce site n'encaisse aucun paiement. Le transfert MVOLA se fait manuellement depuis votre téléphone. Une commande est confirmée uniquement après réception et vérification de votre preuve de paiement sur WhatsApp.</span>
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ À PROPOS ============ -->
+    <section class="section about" id="a-propos" data-spy="a-propos" aria-labelledby="apropos-title">
+      <div class="container">
+        <header class="section__head">
+          <div>
+            <p class="eyebrow reveal"><span class="eyebrow__num">04</span> À propos</p>
+            <h2 class="section__title" id="apropos-title" data-split>La maison <em>NOSY HYPE</em></h2>
+          </div>
+          <p class="section__lead reveal">Un parfum ne se porte pas seulement : il se raconte. Nous sélectionnons ceux qui ont une histoire à dire.</p>
+        </header>
+
+        <div class="bento">
+          <figure class="bento__img reveal" data-reveal="zoom">
+            <img src="assets/img/atelier.webp" width="1400" height="1000" loading="lazy" alt="Détail d'un bouchon doré et d'un flacon de parfum" data-parallax="0.06">
+            <figcaption>The art of fragrance.</figcaption>
+          </figure>
+
+          <article class="bento__story reveal" style="--d:.08s">
+            <p class="bento__kicker">Notre histoire</p>
+            <p class="bento__text">Inspirée par Nosy Be, <em>l'île aux parfums</em>, NOSY HYPE réunit des fragrances de caractère pour celles et ceux qui voient le parfum comme une signature.</p>
+            <p>Chaque flacon est choisi avec soin. Chaque commande est suivie personnellement, du premier message sur WhatsApp jusqu'à la remise de votre parfum.</p>
+          </article>
+
+          <article class="bento__tile reveal" style="--d:.04s">
+            <svg class="i"><use href="#i-spark"/></svg>
+            <h3>Sélection exigeante</h3>
+            <p>Des parfums choisis pour leur tenue, leur sillage et leur élégance.</p>
+          </article>
+          <article class="bento__tile reveal" style="--d:.1s">
+            <svg class="i"><use href="#i-chat"/></svg>
+            <h3>Conseil personnalisé</h3>
+            <p>Une question, une hésitation ? Nous vous guidons sur WhatsApp.</p>
+          </article>
+          <article class="bento__tile reveal" style="--d:.16s">
+            <svg class="i"><use href="#i-search"/></svg>
+            <h3>Demandes privées</h3>
+            <p>Vous cherchez un parfum précis ? Nous le recherchons pour vous.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section class="section contact" id="contact" data-spy="contact" aria-labelledby="contact-title">
+      <div class="container">
+        <header class="section__head">
+          <div>
+            <p class="eyebrow reveal"><span class="eyebrow__num">05</span> Contact</p>
+            <h2 class="section__title" id="contact-title" data-split>Parlons <em>parfum</em>.</h2>
+          </div>
+          <p class="section__lead reveal">Le plus rapide : WhatsApp. Nous répondons personnellement à chaque message.</p>
+        </header>
+
+        <div class="contact__grid">
+          <div class="contact__cards">
+            <a class="ccard ccard--wa reveal" data-wa="Bonjour NOSY HYPE !" href="https://wa.me/261380582719" target="_blank" rel="noopener">
+              <span class="ccard__tag">Le plus rapide</span>
+              <svg class="i ccard__icon"><use href="#i-wa"/></svg>
+              <span class="ccard__label">WhatsApp — commandes &amp; questions</span>
+              <span class="ccard__value" data-config="whatsappDisplay">+261 38 05 827 19</span>
+              <span class="ccard__go" aria-hidden="true"><svg class="i"><use href="#i-arrow-ur"/></svg></span>
+            </a>
+            <a class="ccard reveal" style="--d:.06s" data-mail href="mailto:alaqmarfazele579@gmail.com">
+              <svg class="i ccard__icon"><use href="#i-mail"/></svg>
+              <span class="ccard__label">E-mail</span>
+              <span class="ccard__value ccard__value--sm" data-config="email">alaqmarfazele579@gmail.com</span>
+              <span class="ccard__go" aria-hidden="true"><svg class="i"><use href="#i-arrow-ur"/></svg></span>
+            </a>
+            <div class="ccard reveal" style="--d:.12s">
+              <svg class="i ccard__icon"><use href="#i-wallet"/></svg>
+              <span class="ccard__label">Paiement de l'acompte (50 %)</span>
+              <span class="ccard__value">MVOLA — <span data-config="mvolaNumber">038 05 827 19</span></span>
+              <button class="ccard__copy" type="button" data-copy="mvola" aria-label="Copier le numéro MVOLA"><svg class="i"><use href="#i-copy"/></svg></button>
+            </div>
+          </div>
+
+          <form class="cform reveal" id="contact-form" style="--d:.1s" novalidate>
+            <h3 class="cform__title">Envoyer une demande</h3>
+            <p class="cform__hint">Remplissez ces champs : votre message s'ouvrira prêt à envoyer dans WhatsApp.</p>
+            <div class="field">
+              <input id="cf-name" name="name" type="text" autocomplete="name" placeholder=" " required>
+              <label for="cf-name">Votre prénom</label>
+            </div>
+            <div class="field">
+              <input id="cf-perfume" name="perfume" type="text" placeholder=" ">
+              <label for="cf-perfume">Parfum souhaité (facultatif)</label>
+            </div>
+            <div class="field">
+              <textarea id="cf-msg" name="message" rows="4" placeholder=" " required></textarea>
+              <label for="cf-msg">Votre message</label>
+            </div>
+            <p class="cform__error" id="cf-error" role="alert" hidden>Merci d'indiquer votre prénom et votre message.</p>
+            <button class="btn btn--gold btn--block" type="submit"><svg class="i"><use href="#i-wa"/></svg> Envoyer sur WhatsApp</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <a href="#accueil" class="logo logo--lg">NOSY <span>HYPE</span></a>
+          <p class="footer__tagline">The art of fragrance.</p>
+          <a class="btn btn--ghost btn--small" data-wa="Bonjour NOSY HYPE !" href="https://wa.me/261380582719" target="_blank" rel="noopener"><svg class="i"><use href="#i-wa"/></svg> WhatsApp</a>
+        </div>
+        <nav class="footer__col" aria-label="Liens du pied de page">
+          <h3>Liens</h3>
+          <ul>
+            <li><a class="link" href="#accueil">Accueil</a></li>
+            <li><a class="link" href="#parfums">Parfums</a></li>
+            <li><a class="link" href="#a-propos">À propos</a></li>
+            <li><a class="link" href="#contact">Contact</a></li>
+            <li><a class="link" data-wa="Bonjour NOSY HYPE !" href="https://wa.me/261380582719" target="_blank" rel="noopener">WhatsApp</a></li>
+          </ul>
+        </nav>
+        <div class="footer__col">
+          <h3>Contact</h3>
+          <ul>
+            <li><a class="link" data-mail href="mailto:alaqmarfazele579@gmail.com" data-config="email">alaqmarfazele579@gmail.com</a></li>
+            <li><a class="link" data-wa="Bonjour NOSY HYPE !" href="https://wa.me/261380582719" target="_blank" rel="noopener" data-config="whatsappDisplay">+261 38 05 827 19</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Paiement</h3>
+          <ul>
+            <li class="footer__pay">MVOLA — <span data-config="mvolaNumber">038 05 827 19</span></li>
+            <li class="footer__muted">Acompte de 50 % à la commande, solde à la remise. Preuve de paiement à envoyer sur WhatsApp.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer__wordmark" aria-hidden="true">NOSY HYPE</p>
+      <div class="footer__bottom">
+        <p>© NOSY HYPE — Tous droits réservés.</p>
+        <a href="#accueil" class="link footer__top-link">Retour en haut ↑</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp -->
+  <a class="wa-float" data-wa="Bonjour NOSY HYPE, j'aimerais commander un parfum." href="https://wa.me/261380582719" target="_blank" rel="noopener" aria-label="Commander sur WhatsApp">
+    <svg class="i"><use href="#i-wa"/></svg>
+    <span class="wa-float__label">Commander sur WhatsApp</span>
+  </a>
+
+  <!-- ============ PRODUCT MODAL ============ -->
+  <div class="pmodal" id="product-modal" role="dialog" aria-modal="true" aria-labelledby="pm-title" hidden>
+    <div class="pmodal__backdrop" data-close></div>
+    <div class="pmodal__panel">
+      <button class="pmodal__close" type="button" data-close aria-label="Fermer la fiche parfum"><svg class="i"><use href="#i-close"/></svg></button>
+      <div class="pmodal__media">
+        <img id="pm-img" src="data:," alt="" width="1200" height="1500">
+        <div class="pmodal__nav">
+          <button type="button" class="pmodal__arrow" data-step="-1" aria-label="Parfum précédent"><svg class="i"><use href="#i-left"/></svg></button>
+          <span class="pmodal__index" id="pm-index"></span>
+          <button type="button" class="pmodal__arrow" data-step="1" aria-label="Parfum suivant"><svg class="i"><use href="#i-right"/></svg></button>
+        </div>
+      </div>
+      <div class="pmodal__body">
+        <div class="pmodal__content">
+          <p class="pm-cat" id="pm-cat"></p>
+          <h2 class="pm-title" id="pm-title"></h2>
+          <div class="pm-price-row">
+            <p class="pm-price" id="pm-price"></p>
+            <span class="pm-status" id="pm-status"></span>
+          </div>
+          <p class="pm-desc" id="pm-desc"></p>
+          <div class="pm-notes">
+            <h3>Notes olfactives</h3>
+            <ul id="pm-notes"></ul>
+          </div>
+          <div class="pm-deposit" id="pm-deposit">
+            <svg class="i"><use href="#i-percent"/></svg>
+            <p>Acompte de 50 % à payer par MVOLA : <strong id="pm-deposit-amount"></strong><br><span>Solde à la remise. Envoyez la preuve de paiement sur WhatsApp.</span></p>
+          </div>
+        </div>
+        <div class="pm-actions">
+          <a class="btn btn--gold btn--block" id="pm-wa" href="https://wa.me/261380582719" target="_blank" rel="noopener"><svg class="i"><use href="#i-wa"/></svg> <span>Commander sur WhatsApp</span></a>
+          <button class="btn btn--ghost btn--block" id="pm-add" type="button"><svg class="i"><use href="#i-bag"/></svg> <span>Ajouter à ma sélection</span></button>
+          <a class="pm-help link" href="#commander" data-close-to>Comment commander et payer ?</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SELECTION (BAG) ============ -->
+  <div class="drawer" id="bag" role="dialog" aria-modal="true" aria-labelledby="bag-title" hidden>
+    <div class="drawer__backdrop" data-bag-close></div>
+    <aside class="drawer__panel">
+      <header class="drawer__head">
+        <h2 id="bag-title">Ma sélection</h2>
+        <button class="icon-btn" type="button" data-bag-close aria-label="Fermer ma sélection"><svg class="i"><use href="#i-close"/></svg></button>
+      </header>
+      <div class="drawer__body">
+        <ul class="bag-list" id="bag-list"></ul>
+        <div class="bag-empty" id="bag-empty">
+          <svg class="i"><use href="#i-bag"/></svg>
+          <p>Votre sélection est vide.</p>
+          <a href="#parfums" class="btn btn--ghost btn--small" data-bag-close>Voir les parfums</a>
+        </div>
+      </div>
+      <footer class="drawer__foot" id="bag-foot">
+        <dl class="bag-sum">
+          <div><dt>Total</dt><dd id="bag-total">—</dd></div>
+          <div class="bag-sum__dep"><dt>Acompte 50 % (MVOLA)</dt><dd id="bag-deposit">—</dd></div>
+          <div><dt>Solde à la remise</dt><dd id="bag-balance">—</dd></div>
+        </dl>
+        <a class="btn btn--gold btn--block" id="bag-send" href="https://wa.me/261380582719" target="_blank" rel="noopener"><svg class="i"><use href="#i-wa"/></svg> Envoyer ma commande sur WhatsApp</a>
+        <p class="drawer__note">Nous confirmons la disponibilité, puis vous payez l'acompte au <strong data-config="mvolaNumber">038 05 827 19</strong> (MVOLA) et envoyez la preuve sur WhatsApp.</p>
+      </footer>
+    </aside>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Shop settings & catalogue: edit these two files to update the site -->
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/products.js"></script>
+  <script src="assets/js/main.js" defer></script>
+</body>
+</html>
