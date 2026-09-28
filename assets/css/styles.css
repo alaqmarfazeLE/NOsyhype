@@ -15,6 +15,7 @@
 
 /* ---------- Design tokens ---------- */
 :root {
+  color-scheme: dark;
   --black: #050505;
   --ink: #111111;
   --ink-2: #161616;
@@ -814,6 +815,7 @@ a.ccard:hover .ccard__go { background: var(--gold); color: #000; border-color: v
 .field textarea:focus + label, .field textarea:not(:placeholder-shown) + label { transform: translateY(-11px) scale(.76); color: var(--gold); }
 .field.is-invalid input, .field.is-invalid textarea { border-color: #d98a6a; }
 .cform__error { color: #e8a58a; font-size: .9rem; }
+.cform__fallback { justify-self: center; font-weight: 600; }
 @media (min-width: 768px) { .cform { padding: 40px; } }
 
 /* ---------- Footer ---------- */

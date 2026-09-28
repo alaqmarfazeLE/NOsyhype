@@ -776,8 +776,18 @@
         msg.value.trim(),
       ].filter(Boolean).join('\n');
       const link = waLink(text);
+      const fallback = $('#cf-fallback');
       const w = window.open(link, '_blank');
-      if (w) w.opener = null; else window.location.href = link;
+      if (w) {
+        w.opener = null;
+      } else if (fallback) {
+        // pop-up blocked: offer a real link instead
+        fallback.href = link;
+        fallback.hidden = false;
+        fallback.focus();
+      } else {
+        window.location.href = link;
+      }
     });
   }
 
