@@ -3,7 +3,7 @@
    ---------------------------------------------------------
    Modifiez ici vos coordonnées : elles sont mises à jour
    automatiquement sur tout le site (boutons WhatsApp,
-   e-mail, numéro MVOLA, calcul de l'acompte…).
+   Instagram, e-mail, numéro MVOLA, calcul de l'acompte…).
    ========================================================= */
 window.NOSY_CONFIG = {
   // Numéro WhatsApp au format international, chiffres uniquement
@@ -12,6 +12,10 @@ window.NOSY_CONFIG = {
 
   // Le même numéro, tel qu'il s'affiche sur le site
   whatsappDisplay: "+261 38 05 827 19",
+
+  // Instagram
+  instagramUrl: "https://www.instagram.com/nosy_hype/",
+  instagramHandle: "@nosy_hype",
 
   // Adresse e-mail de contact
   email: "alaqmarfazele579@gmail.com",

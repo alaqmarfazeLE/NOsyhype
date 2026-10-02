@@ -1,78 +1,85 @@
 # NOSY HYPE — *The art of fragrance.*
 
-Site vitrine et catalogue de parfums de luxe pour **NOSY HYPE** : commande sur WhatsApp,
-demandes privées, acompte de 50 % par MVOLA.
+Site vitrine et catalogue de parfums pour **NOSY HYPE** : commande sur WhatsApp,
+demandes privées, acompte de 50 % par MVOLA, livraison partout à Madagascar.
 
-Site statique (HTML / CSS / JavaScript), sans dépendance ni étape de compilation : il suffit
+Site statique (HTML / CSS / JavaScript), sans étape de compilation : il suffit
 d'ouvrir `index.html` ou de l'héberger tel quel (GitHub Pages, Netlify, Vercel, un hébergeur classique…).
 
 ## Modifier le site
 
-Tout se règle dans **deux fichiers** :
+Tout se règle dans **trois fichiers** :
 
 | Fichier | Contenu |
 | --- | --- |
-| `assets/js/config.js` | Numéro WhatsApp, e-mail, numéro MVOLA, pourcentage d'acompte, devise |
-| `assets/js/products.js` | Le catalogue : nom, prix, catégorie, description, notes, photo, disponibilité |
+| `assets/js/config.js` | WhatsApp, Instagram, e-mail, numéro MVOLA, pourcentage d'acompte |
+| `assets/js/products.js` | Le catalogue : marque, nom, catégorie, description, notes, photo, disponibilité |
+| `assets/js/reviews.js` | Les avis clients |
 
 ### Coordonnées (`config.js`)
 
 - `whatsappNumber` : numéro au format international, chiffres uniquement (ex. `261380582719`).
   **À vérifier** : le site utilise par défaut le numéro MVOLA (038 05 827 19) comme numéro WhatsApp.
-- `whatsappDisplay` : le même numéro tel qu'il s'affiche.
+- `instagramUrl`, `instagramHandle` : `https://www.instagram.com/nosy_hype/`, `@nosy_hype`.
 - `email`, `mvolaNumber`, `depositPercent` (50), `currency` (Ar).
 
 ### Parfums (`products.js`)
 
-Les 9 parfums fournis sont des **exemples fictifs** (noms, prix et visuels de démonstration).
-Remplacez-les par votre stock réel :
+Le catalogue contient 99 parfums connus. **Les prix ne sont pas affichés** : ils sont
+communiqués sur WhatsApp.
 
 ```js
 {
-  "name": "Nom du parfum",
-  "price": "185 000 Ar",
-  "category": "Femme",          // crée automatiquement le filtre
-  "description": "Une à trois phrases.",
-  "notes": ["Note 1", "Note 2", "Note 3"],
-  "image": "assets/img/perfumes/ma-photo.webp",
-  "available": true             // false = « Sur demande »
+  "brand": "Dior",
+  "name": "Sauvage Eau de Toilette",
+  "category": "Homme",            // crée automatiquement le filtre
+  "description": "Une phrase.",
+  "notes": ["Bergamote", "Poivre", "Ambroxan"],
+  "image": "",                    // chemin de la vraie photo, ex. "assets/img/perfumes/dior-sauvage-eau-de-toilette.jpg"
+  "available": true,              // false = « Sur demande »
+  "vedette": true                 // facultatif : apparaît dans le showroom 3D
 }
 ```
 
-- Le **premier parfum** de la liste est mis en avant dans l'accueil (« Signature »).
-- Le prix sert au calcul automatique de l'acompte (50 %).
-- Photos : format portrait **4:5** conseillé (ex. 1200 × 1500 px), en `.webp` ou `.jpg`.
+- **Photos** : tant que `image` est vide, une carte « Photo à venir » s'affiche.
+  La liste des noms de fichiers conseillés pour chaque parfum est dans
+  `assets/img/perfumes/LISEZMOI.md`. Utilisez vos propres photos ou les visuels officiels
+  de la marque ou du fournisseur.
+- Le showroom 3D montre les parfums marqués `"vedette": true` (12 conseillés).
 
-### Visuels
+### Avis clients (`reviews.js`)
 
-Les images de `assets/img/` sont des rendus 3D de démonstration (flacons fictifs).
-Pour les remplacer, gardez les mêmes noms de fichiers ou modifiez les chemins :
-
-- `hero-wide.webp` (2400 × 1350) et `hero-tall.webp` (1080 × 1920, mobile) : image d'accueil
-- `prive.webp` (1200 × 1500) : section « Demande privée »
-- `atelier.webp` (1400 × 1000) : section « À propos »
-- `og-image.jpg` (1200 × 630) : aperçu lors du partage du lien. Une fois le site en ligne,
-  remplacez `assets/img/og-image.jpg` dans `index.html` par l'adresse complète
-  (ex. `https://votre-domaine.com/assets/img/og-image.jpg`).
+Les 6 avis fournis sont des **exemples** (étiquette « Exemple » visible sur le site).
+Remplacez-les par de vrais avis de vos clients, avec leur accord, puis supprimez la ligne
+`"exemple": true`.
 
 ## Paiement
 
 Le site **n'encaisse aucun paiement**. Il explique la marche à suivre :
 
 1. Le client choisit un parfum (ou demande un parfum précis) et écrit sur WhatsApp.
-2. NOSY HYPE confirme la disponibilité et le montant total.
+2. NOSY HYPE confirme la disponibilité, le prix et les frais de livraison.
 3. Le client paie **50 % d'acompte par MVOLA au 038 05 827 19**.
 4. Le client envoie la **preuve de paiement sur WhatsApp** ; la commande est confirmée après vérification.
 5. Le solde (50 %) est réglé à la remise du parfum.
 
 ## Fonctionnalités
 
-- Écran de chargement avec révélation du logo doré, puis entrée animée de l'accueil
-- Navigation fixe avec indicateur de section active, menu mobile plein écran animé
-- Catalogue filtrable ; chaque fiche parfum s'ouvre avec une transition « cinéma » (image qui s'agrandit, fond flouté)
-- Navigation entre parfums dans la fiche (flèches, clavier ← →, glisser sur mobile), lien partageable `?parfum=nom-du-parfum`
-- « Ma sélection » : plusieurs parfums envoyés en un seul message WhatsApp, avec total et acompte calculés
-- Calculateur d'acompte, bouton « Copier le numéro MVOLA », formulaire de contact qui prépare le message WhatsApp
-- Animations au défilement (apparition, parallaxe, zoom), reflets dorés, halo du curseur (ordinateur)
+- Écran de chargement avec révélation du logo doré
+- Accueil avec un **flacon NOSY HYPE en 3D temps réel** (three.js) qui tourne, à faire pivoter
+  au doigt ou à la souris ; la qualité s'adapte automatiquement aux téléphones moins puissants
+- **Showroom 3D** : un carrousel circulaire des parfums en vedette, à faire tourner
+- Catalogue avec recherche (nom, marque ou note), filtres Femme / Homme / Unisexe et « Voir plus »
+- Fiche parfum avec ouverture animée, carte flottante en 3D, navigation entre parfums
+  (flèches, clavier ← →, glisser sur mobile) et lien partageable `?parfum=nom-du-parfum`
+- « Ma sélection » : plusieurs parfums envoyés en un seul message WhatsApp
+- **Livraison partout à Madagascar** avec une carte de l'île (données Natural Earth)
+- Avis clients, liens Instagram, calculateur d'acompte, copie du numéro MVOLA,
+  formulaire de contact qui prépare le message WhatsApp
 - Accessible : navigation clavier, focus visible, respect du réglage « réduire les animations »
-- Polices hébergées localement (Cormorant Garamond, Manrope — licence SIL OFL, voir `assets/fonts/`)
+
+## Crédits
+
+- [three.js](https://threejs.org) (licence MIT, `assets/vendor/`)
+- Polices Cormorant Garamond, Manrope et IBM Plex Mono (licence SIL OFL, `assets/fonts/`)
+- Contour de Madagascar : [Natural Earth](https://www.naturalearthdata.com) (domaine public)

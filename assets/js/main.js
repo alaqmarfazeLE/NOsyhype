@@ -1,7 +1,8 @@
 /* =========================================================
    NOSY HYPE — interactions
    (no dependencies — the catalogue lives in products.js,
-   shop settings in config.js)
+   reviews in reviews.js, shop settings in config.js;
+   the 3D hero bottle is in hero3d.js)
    ========================================================= */
 (() => {
   'use strict';
@@ -10,6 +11,8 @@
   const CFG = Object.assign({
     whatsappNumber: '261380582719',
     whatsappDisplay: '+261 38 05 827 19',
+    instagramUrl: 'https://www.instagram.com/nosy_hype/',
+    instagramHandle: '@nosy_hype',
     email: 'alaqmarfazele579@gmail.com',
     mvolaNumber: '038 05 827 19',
     depositPercent: 50,
@@ -25,50 +28,74 @@
 
   const nf = new Intl.NumberFormat('fr-FR');
   const money = (n) => `${nf.format(Math.round(n)).replace(/\s/g, ' ')} ${CFG.currency}`;
-  const parsePrice = (str) => { const d = String(str || '').replace(/\D/g, '').slice(0, 12); return d ? parseInt(d, 10) : 0; };
+  const parseAmount = (str) => { const d = String(str || '').replace(/\D/g, '').slice(0, 12); return d ? parseInt(d, 10) : 0; };
   const depositOf = (n) => Math.ceil((n * CFG.depositPercent) / 100);
-  const slugify = (s) => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const fold = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const slugify = (s) => fold(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const waLink = (text) => `https://wa.me/${String(CFG.whatsappNumber).replace(/\D/g, '')}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
-  const store = {
-    get(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } },
-    set(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* storage unavailable */ } },
-  };
-  const session = {
-    get(k) { try { return window.sessionStorage.getItem(k); } catch (e) { return null; } },
-    set(k, v) { try { window.sessionStorage.setItem(k, v); } catch (e) { /* storage unavailable */ } },
-  };
+  const tryStore = (kind) => ({
+    get(k) { try { return window[kind].getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { window[kind].setItem(k, v); } catch (e) { /* storage unavailable */ } },
+  });
+  const store = tryStore('localStorage');
+  const session = tryStore('sessionStorage');
   const inView = (el) => {
     if (!el) return false;
     const r = el.getBoundingClientRect();
     return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth;
   };
 
-  /* ---------- Catalogue ---------- */
+  /* ---------- Catalogue data ---------- */
   const seen = new Set();
   const PRODUCTS = (Array.isArray(window.NOSY_PRODUCTS) ? window.NOSY_PRODUCTS : []).map((p, i) => {
-    let id = slugify(p.name) || `parfum-${i + 1}`;
+    const brand = p.brand || '';
+    const name = p.name || 'Parfum';
+    let id = slugify(`${brand} ${name}`) || `parfum-${i + 1}`;
     while (seen.has(id)) id += `-${i + 1}`;
     seen.add(id);
+    const notes = Array.isArray(p.notes) ? p.notes : [];
     return {
-      name: p.name || 'Parfum',
-      price: p.price || '',
+      id, brand, name, notes,
       category: p.category || 'Parfum',
       description: p.description || '',
-      notes: Array.isArray(p.notes) ? p.notes : [],
       image: p.image || '',
       available: p.available !== false,
-      id,
-      amount: parsePrice(p.price),
+      vedette: !!p.vedette,
+      haystack: fold([brand, name, p.category, ...notes].join(' ')),
     };
   });
   const byId = (id) => PRODUCTS.find((p) => p.id === id);
+  const fullName = (p) => (p.brand ? `${p.brand} — ${p.name}` : p.name);
+  const initials = (brand) => {
+    const b = String(brand || '').trim();
+    if (!b) return 'NH';
+    if (/^[^\s]+&[^\s]+$/.test(b)) return b.split('&').map((w) => w[0].toUpperCase()).join('&');
+    const words = b.split(/\s+/).filter((w) => !/^(de|du|la|le|des|london|parfums)$/i.test(w) || b.split(/\s+/).length === 1);
+    return (words.length ? words : [b]).slice(0, 3).map((w) => w[0].toUpperCase()).join('');
+  };
+
+  // real photo when provided, otherwise an elegant placeholder card
+  function mediaHTML(p, lazy = true) {
+    if (p.image) {
+      return `<img class="media" src="${esc(p.image)}" alt="Flacon ${esc(fullName(p))}" width="1200" height="1500"${lazy ? ' loading="lazy"' : ''} decoding="async">`;
+    }
+    return `<div class="media ph" role="img" aria-label="${esc(fullName(p))}, photo à venir">
+      <span class="ph__orbit" aria-hidden="true"></span>
+      <span class="ph__mono" aria-hidden="true">${esc(initials(p.brand))}</span>
+      <span class="ph__brand" aria-hidden="true">${esc(p.brand)}</span>
+      <span class="ph__name" aria-hidden="true">${esc(p.name)}</span>
+      <span class="ph__tag" aria-hidden="true">Photo à venir</span>
+    </div>`;
+  }
 
   /* ---------- Shop settings → page ---------- */
   function bindConfig() {
     $$('[data-config]').forEach((el) => { const v = CFG[el.dataset.config]; if (v) el.textContent = v; });
     $$('[data-wa]').forEach((el) => { el.href = waLink(el.dataset.wa); });
     $$('[data-mail]').forEach((el) => { el.href = `mailto:${CFG.email}`; });
+    $$('[data-ig]').forEach((el) => { el.href = CFG.instagramUrl; });
+    $$('[data-product-total]').forEach((el) => { el.textContent = `· ${PRODUCTS.length} références`; });
   }
 
   /* ---------- Toast ---------- */
@@ -120,16 +147,14 @@
     let p = 0;
     const setP = (v) => { p = Math.max(p, v); if (bar) bar.style.transform = `scaleX(${p})`; };
     setP(0.12);
-    const heroImg = $('.hero__media img');
-    const imgReady = new Promise((res) => {
-      if (!heroImg || heroImg.complete) { res(); return; }
-      heroImg.addEventListener('load', res, { once: true });
-      heroImg.addEventListener('error', res, { once: true });
-    }).then(() => setP(0.8));
-    const fontsReady = (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => setP(0.5));
-    const creep = setInterval(() => setP(Math.min(p + 0.035, 0.92)), 160);
-    const cap = new Promise((res) => setTimeout(res, 5000));
-    Promise.race([Promise.all([imgReady, fontsReady]), cap]).then(() => {
+    const fontsReady = (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => setP(0.45));
+    const stageReady = new Promise((res) => {
+      if (window.__hero3dReady || !$('[data-hero3d]')) { res(); return; }
+      window.addEventListener('hero3d:ready', res, { once: true });
+    }).then(() => setP(0.85));
+    const creep = setInterval(() => setP(Math.min(p + 0.03, 0.92)), 160);
+    const cap = new Promise((res) => setTimeout(res, 3500));
+    Promise.race([Promise.all([fontsReady, stageReady]), cap]).then(() => {
       const wait = Math.max(0, minTime - (performance.now() - start));
       setTimeout(() => {
         clearInterval(creep);
@@ -162,7 +187,7 @@
       const box = el.parentElement.getBoundingClientRect();
       if (box.bottom < -200 || box.top > vh + 200) continue;
       const speed = parseFloat(el.dataset.parallax) || 0.1;
-      const limit = el.classList.contains('hero__media') ? Infinity : box.height * 0.07;
+      const limit = box.height * 0.07;
       const offset = Math.max(-limit, Math.min(limit, (box.top + box.height / 2 - vh / 2) * -speed));
       el.style.setProperty('--py', `${offset.toFixed(1)}px`);
     }
@@ -277,7 +302,7 @@
       entries.forEach((en) => {
         if (en.isIntersecting) { en.target.classList.add('is-in'); revealIO.unobserve(en.target); }
       });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
     observeReveal($$('.reveal, [data-split]'));
   }
 
@@ -299,69 +324,77 @@
     });
   }
 
-  /* ---------- Collection: filters + cards ---------- */
+  /* ---------- Collection: search, filters, cards, "voir plus" ---------- */
+  const PAGE = 12;
   const grid = $('#product-grid');
   const filtersEl = $('#filters');
   const countEl = $('#product-count');
-  let activeFilter = 'all';
+  const moreBtn = $('#more');
+  const emptyEl = $('#grid-empty');
+  const searchEl = $('#search');
+  const state = { cat: 'all', q: '', limit: PAGE };
+
+  const matches = () => {
+    const words = fold(state.q).split(/\s+/).filter(Boolean);
+    return PRODUCTS.filter((p) => (state.cat === 'all' || p.category === state.cat) && words.every((w) => p.haystack.includes(w)));
+  };
 
   function cardHTML(p, i) {
     return `
-      <div class="grid__item reveal" data-id="${esc(p.id)}" data-category="${esc(p.category)}" style="--d:${((i % 3) * 0.09).toFixed(2)}s">
+      <div class="grid__item reveal" data-id="${esc(p.id)}" style="--d:${((i % 3) * 0.08).toFixed(2)}s">
         <article class="card">
           <div class="card__media">
-            <img src="${esc(p.image)}" alt="Flacon du parfum ${esc(p.name)}" width="1200" height="1500" loading="lazy" decoding="async">
+            ${mediaHTML(p)}
             ${p.available ? '' : '<span class="card__badge">Sur demande</span>'}
+            <span class="card__scan" aria-hidden="true"></span>
             <span class="card__sheen" aria-hidden="true"></span>
           </div>
           <div class="card__body">
-            <p class="card__cat">${esc(p.category)}</p>
+            <p class="card__brand">${esc(p.brand)}</p>
             <h3 class="card__name">${esc(p.name)}</h3>
             <p class="card__notes">${p.notes.map(esc).join(' · ')}</p>
             <div class="card__foot">
-              <span class="card__price">${esc(p.price)}</span>
+              <span class="card__cat">${esc(p.category)}</span>
               <span class="card__cta" aria-hidden="true"><span class="card__cta-txt">Découvrir</span><svg class="i"><use href="#i-arrow"/></svg></span>
             </div>
           </div>
           <button class="card__hit" type="button" data-open-product="${esc(p.id)}"
-            aria-label="Découvrir ${esc(p.name)} — ${esc(p.category)}, ${esc(p.price)}${p.available ? '' : ', sur demande'}"></button>
+            aria-label="Découvrir ${esc(fullName(p))} — ${esc(p.category)}${p.available ? '' : ', sur demande'}"></button>
         </article>
       </div>`;
   }
 
-  function updateCount() {
-    if (!countEl) return;
-    const n = $$('.grid__item:not(.is-hidden)', grid).length;
-    countEl.textContent = `${n} parfum${n > 1 ? 's' : ''}`;
-  }
-
-  function applyFilter(cat) {
-    activeFilter = cat;
-    $$('.chip', filtersEl).forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.filter === cat)));
-    const items = $$('.grid__item', grid);
-    const matches = (it) => cat === 'all' || it.dataset.category === cat;
-    if (reduceMotion) {
-      items.forEach((it) => it.classList.toggle('is-hidden', !matches(it)));
-      updateCount();
-      return;
-    }
-    items.forEach((it) => it.classList.add('is-filtering'));
-    setTimeout(() => {
-      let k = 0;
-      items.forEach((it) => {
-        const show = matches(it);
-        it.classList.toggle('is-hidden', !show);
-        it.classList.add('is-in');
-        if (show) it.style.setProperty('--d', `${(k++ * 0.06).toFixed(2)}s`);
-      });
-      updateCount();
-      requestAnimationFrame(() => requestAnimationFrame(() => items.forEach((it) => it.classList.remove('is-filtering'))));
-    }, 300);
-  }
-
-  function renderCatalogue() {
+  function renderGrid(append = false) {
     if (!grid) return;
-    grid.innerHTML = PRODUCTS.map(cardHTML).join('');
+    const list = matches();
+    const shown = $$('.grid__item', grid).length;
+    if (append) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = list.slice(shown, state.limit).map((p, i) => cardHTML(p, i)).join('');
+      const fresh = Array.from(tmp.children);
+      fresh.forEach((el) => grid.appendChild(el));
+      fresh.forEach((el) => bindTilt($('.card', el), 4));
+      observeReveal(fresh);
+    } else {
+      grid.innerHTML = list.slice(0, state.limit).map(cardHTML).join('');
+      $$('.card', grid).forEach((c) => bindTilt(c, 4));
+      observeReveal($$('.grid__item', grid));
+    }
+    const left = Math.max(0, list.length - state.limit);
+    if (moreBtn) {
+      moreBtn.hidden = left === 0;
+      $('#more-count').textContent = `(${left})`;
+    }
+    if (countEl) countEl.textContent = `${list.length} parfum${list.length > 1 ? 's' : ''}`;
+    if (emptyEl) {
+      emptyEl.hidden = list.length > 0;
+      const q = state.q.trim();
+      $('#empty-wa').href = waLink(`Bonjour NOSY HYPE, je recherche le parfum : ${q || ''}`);
+    }
+  }
+
+  function initCatalogue() {
+    if (!grid) return;
     const cats = [...new Set(PRODUCTS.map((p) => p.category))];
     if (filtersEl) {
       const count = (c) => PRODUCTS.filter((p) => c === 'all' || p.category === c).length;
@@ -370,33 +403,123 @@
         .join('');
       filtersEl.addEventListener('click', (e) => {
         const chip = e.target.closest('.chip');
-        if (chip && chip.dataset.filter !== activeFilter) applyFilter(chip.dataset.filter);
+        if (!chip || chip.dataset.filter === state.cat) return;
+        state.cat = chip.dataset.filter;
+        state.limit = PAGE;
+        $$('.chip', filtersEl).forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+        renderGrid();
       });
-      if (cats.length < 2) filtersEl.parentElement.hidden = true;
+      if (cats.length < 2) filtersEl.hidden = true;
     }
-    updateCount();
-    $$('.card', grid).forEach((c) => bindTilt(c, 4));
-    observeReveal($$('.grid__item', grid));
+    if (searchEl) {
+      let t;
+      searchEl.addEventListener('input', () => {
+        clearTimeout(t);
+        t = setTimeout(() => { state.q = searchEl.value; state.limit = PAGE; renderGrid(); }, 140);
+      });
+      searchEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
+    }
+    if (moreBtn) moreBtn.addEventListener('click', () => { state.limit += PAGE; renderGrid(true); });
+    renderGrid();
+  }
 
-    // hero "signature" card follows the first product of the catalogue
-    const feat = $('.hero__feature');
-    const first = PRODUCTS[0];
-    if (feat) {
-      if (!first) { feat.hidden = true; } else {
-        feat.dataset.openProduct = first.id;
-        feat.setAttribute('aria-label', `Découvrir le parfum signature ${first.name}`);
-        const img = $('img', feat);
-        if (img) img.src = first.image;
-        const nm = $('.hero__feature-name', feat);
-        if (nm) nm.textContent = first.name;
-      }
+  /* ---------- Showroom: rotating 3D ring of featured perfumes ---------- */
+  function initShowroom() {
+    const stage = $('[data-ring]');
+    const ring = $('#ring');
+    if (!stage || !ring || !PRODUCTS.length) { if (stage) stage.closest('.showroom').hidden = true; return; }
+    let items = PRODUCTS.filter((p) => p.vedette).slice(0, 14);
+    if (items.length < 6) items = PRODUCTS.slice(0, 12);
+    const n = items.length;
+    const step = 360 / n;
+    ring.innerHTML = items.map((p, i) => `
+      <button class="ring__card" type="button" data-open-product="${esc(p.id)}" style="--i:${i}" aria-label="Découvrir ${esc(fullName(p))}">
+        <span class="ring__media">${mediaHTML(p, false)}</span>
+        <span class="ring__cap"><b>${esc(p.brand)}</b><span>${esc(p.name)}</span></span>
+      </button>`).join('');
+    const cards = $$('.ring__card', ring);
+
+    let radius = 0;
+    function layout() {
+      const w = cards[0].offsetWidth || 160;
+      radius = Math.round((w / 2) / Math.tan(Math.PI / n) * 1.22);
+      cards.forEach((c, i) => { c.style.transform = `rotateY(${i * step}deg) translateZ(${radius}px)`; });
     }
+
+    let rot = 0;
+    let vel = 0;
+    let dragging = false;
+    let moved = 0;
+    let lastX = 0;
+    let hover = false;
+    let visible = false;
+    let running = false;
+    let last = 0;
+    const auto = reduceMotion ? 0 : -9; // degrees per second
+
+    function paint() {
+      ring.style.transform = `translateZ(${-radius}px) rotateX(-6deg) rotateY(${rot}deg)`;
+      cards.forEach((c, i) => {
+        let a = ((i * step + rot) % 360 + 540) % 360 - 180; // -180..180, 0 = facing us
+        const f = Math.cos((a * Math.PI) / 180);
+        c.style.setProperty('--f', Math.max(0, f).toFixed(3));
+        c.style.zIndex = String(Math.round((f + 1) * 50));
+        c.tabIndex = f > 0.2 ? 0 : -1;
+      });
+    }
+    function frame(now) {
+      if (!visible) { running = false; return; }
+      running = true;
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      if (!dragging) {
+        vel *= Math.pow(0.05, dt);
+        rot += (vel + (hover ? 0 : auto)) * dt;
+      }
+      paint();
+      requestAnimationFrame(frame);
+    }
+    const kick = () => { if (!running && visible) { last = performance.now(); requestAnimationFrame(frame); } };
+
+    let pressed = false;
+    stage.addEventListener('pointerdown', (e) => {
+      pressed = true; moved = 0; lastX = e.clientX;
+    });
+    stage.addEventListener('pointermove', (e) => {
+      if (!pressed) return;
+      const dx = e.clientX - lastX; lastX = e.clientX;
+      moved += Math.abs(dx);
+      // only capture the pointer once it is a real drag, so a simple tap still opens the perfume
+      if (!dragging && moved > 6) {
+        dragging = true; vel = 0;
+        try { stage.setPointerCapture(e.pointerId); } catch (err) { /* pointer already released */ }
+      }
+      if (!dragging) return;
+      const d = dx * 0.35;
+      rot += d; vel = d * 60;
+      if (reduceMotion) paint();
+    });
+    const release = () => { pressed = false; dragging = false; };
+    stage.addEventListener('pointerup', release);
+    stage.addEventListener('pointercancel', release);
+    // a drag must not open the perfume under the pointer
+    stage.addEventListener('click', (e) => { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } moved = 0; }, true);
+    stage.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hover = true; });
+    stage.addEventListener('pointerleave', () => { hover = false; });
+    // keyboard: focusing a card turns it to the front
+    cards.forEach((c, i) => c.addEventListener('focus', () => { rot = -i * step; vel = 0; paint(); }));
+
+    layout();
+    paint();
+    window.addEventListener('resize', () => { layout(); paint(); }, { passive: true });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((en) => { visible = en[0].isIntersecting; kick(); }).observe(stage);
+    } else { visible = true; kick(); }
   }
 
   /* ---------- Product modal (cinematic opening) ---------- */
   const modal = $('#product-modal');
   const panel = modal && $('.pmodal__panel', modal);
-  const pmImg = $('#pm-img');
+  const pmMedia = $('#pm-media');
   const pmContent = modal && $('.pmodal__content', modal);
   const pmWa = $('#pm-wa');
   const pmAdd = $('#pm-add');
@@ -409,15 +532,15 @@
   let modalLocked = false;
 
   const isDesktopModal = () => window.matchMedia('(min-width: 900px)').matches;
+  const mediaOf = (el) => el && $('.media', el);
 
-  function fly(src, from, to, r0, r1, duration) {
+  function fly(sourceEl, from, to, r0, r1, duration) {
     return new Promise((resolve) => {
       const g = document.createElement('div');
       g.className = 'ghost';
-      const im = new Image();
-      im.alt = '';
-      im.src = src;
-      g.appendChild(im);
+      const clone = sourceEl.cloneNode(true);
+      clone.removeAttribute('loading');
+      g.appendChild(clone);
       Object.assign(g.style, { left: `${from.left}px`, top: `${from.top}px`, width: `${from.width}px`, height: `${from.height}px`, borderRadius: r0 });
       body.appendChild(g);
       if (!g.animate) { g.remove(); resolve(null); return; }
@@ -431,27 +554,17 @@
   }
 
   function fillModal(p) {
-    pmImg.src = p.image;
-    pmImg.alt = `Flacon du parfum ${p.name}`;
+    pmMedia.innerHTML = mediaHTML(p, false);
+    $('#pm-brand').textContent = p.brand;
     $('#pm-cat').textContent = p.category;
     $('#pm-title').textContent = p.name;
-    $('#pm-price').textContent = p.price;
     const st = $('#pm-status');
-    st.textContent = p.available ? 'Disponible' : 'Sur demande';
+    st.textContent = p.available ? 'À commander' : 'Sur demande';
     st.className = `pm-status ${p.available ? 'is-available' : 'is-request'}`;
     $('#pm-desc').textContent = p.description;
     $('#pm-notes').innerHTML = p.notes.map((n) => `<li>${esc(n)}</li>`).join('');
     $('.pm-notes', modal).hidden = !p.notes.length;
-    const dep = $('#pm-deposit');
-    if (p.amount) {
-      dep.hidden = false;
-      $('#pm-deposit-amount').textContent = money(depositOf(p.amount));
-    } else {
-      dep.hidden = true;
-    }
-    const msg = p.available
-      ? `Bonjour NOSY HYPE, je souhaite commander le parfum « ${p.name} » (${p.price}). Est-il disponible ?`
-      : `Bonjour NOSY HYPE, je souhaite commander le parfum « ${p.name} » (sur demande). Pouvez-vous me le procurer ?`;
+    const msg = `Bonjour NOSY HYPE, je souhaite commander le parfum « ${fullName(p)} ». Pouvez-vous me donner le prix et la disponibilité ?`;
     pmWa.href = waLink(msg);
     $('span', pmWa).textContent = p.available ? 'Commander sur WhatsApp' : 'Demander sur WhatsApp';
     pmAdd.hidden = !p.available;
@@ -475,13 +588,13 @@
     modalOpen = true;
     currentId = id;
     lastFocus = trigger || document.activeElement;
-    const visible = $$('.grid__item:not(.is-hidden)', grid).map((it) => it.dataset.id);
-    navIds = visible.includes(id) ? visible : PRODUCTS.map((x) => x.id);
+    const ids = matches().map((x) => x.id);
+    navIds = ids.includes(id) ? ids : PRODUCTS.map((x) => x.id);
     fillModal(p);
 
-    originEl = trigger ? trigger.closest('.card, .hero__feature') : null;
-    const originImg = originEl && $('img', originEl);
-    const cinematic = !reduceMotion && originImg && inView(originImg);
+    originEl = trigger ? trigger.closest('.card, .ring__card') : null;
+    const originMedia = mediaOf(originEl);
+    const cinematic = !reduceMotion && originMedia && inView(originMedia);
 
     modal.hidden = false;
     panel.scrollTop = 0;
@@ -489,19 +602,17 @@
     if (scroller) scroller.scrollTop = 0;
     if (!modalLocked) { lock(); modalLocked = true; }
     setUrl(id);
-    if (cinematic) pmImg.style.opacity = '0';
+    if (cinematic) pmMedia.style.opacity = '0';
     void modal.offsetWidth; // commit the initial state before animating
     modal.classList.add('is-open');
 
     if (cinematic) {
-      const from = originImg.getBoundingClientRect();
-      const to = pmImg.getBoundingClientRect();
-      const r0 = originEl.classList.contains('hero__feature') ? '14px' : '22px 22px 0 0';
-      const r1 = isDesktopModal() ? '32px 0 0 32px' : '0px';
+      const from = originMedia.getBoundingClientRect();
+      const to = pmMedia.getBoundingClientRect();
+      const r0 = originEl.classList.contains('ring__card') ? '16px' : '22px 22px 0 0';
       originEl.classList.add('is-opening');
-      const src = originImg.currentSrc || originImg.src;
-      fly(src, from, to, r0, r1, 900).then((g) => {
-        pmImg.style.opacity = '';
+      fly(originMedia, from, to, r0, '20px', 900).then((g) => {
+        pmMedia.style.opacity = '';
         if (originEl) originEl.classList.remove('is-opening');
         if (g) requestAnimationFrame(() => requestAnimationFrame(() => g.remove()));
       });
@@ -512,30 +623,29 @@
   function closeProduct(after) {
     if (!modalOpen) return;
     modalOpen = false;
-    const gridItem = $(`.grid__item[data-id="${CSS.escape(currentId)}"]:not(.is-hidden)`, grid);
+    const gridItem = grid && $(`.grid__item[data-id="${CSS.escape(currentId)}"]`, grid);
     const candidates = [gridItem && $('.card', gridItem)];
-    if (originEl && originEl.classList.contains('hero__feature') && originEl.dataset.openProduct === currentId) candidates.unshift(originEl);
-    const target = candidates.find((c) => c && inView($('img', c)));
-    const targetImg = target && $('img', target);
+    if (originEl && originEl.classList.contains('ring__card') && originEl.dataset.openProduct === currentId) candidates.unshift(originEl);
+    const target = candidates.find((c) => c && inView(mediaOf(c)));
+    const targetMedia = mediaOf(target);
+    const fromMedia = mediaOf(pmMedia);
 
-    if (!reduceMotion && targetImg && pmImg.complete) {
-      const from = pmImg.getBoundingClientRect();
-      const to = targetImg.getBoundingClientRect();
-      const r0 = isDesktopModal() ? '32px 0 0 32px' : '0px';
-      const r1 = target.classList.contains('hero__feature') ? '14px' : '22px 22px 0 0';
+    if (!reduceMotion && targetMedia && fromMedia) {
+      const from = fromMedia.getBoundingClientRect();
+      const to = targetMedia.getBoundingClientRect();
+      const r1 = target.classList.contains('ring__card') ? '16px' : '22px 22px 0 0';
       target.classList.add('is-opening');
-      const src = pmImg.currentSrc || pmImg.src;
-      pmImg.style.opacity = '0';
-      fly(src, from, to, r0, r1, 750).then((g) => {
+      fly(fromMedia, from, to, '20px', r1, 750).then((g) => {
         target.classList.remove('is-opening');
         if (g) requestAnimationFrame(() => g.remove());
       });
+      pmMedia.style.opacity = '0';
     }
     modal.classList.remove('is-open');
     setUrl(null);
     hideTimer = setTimeout(() => {
       modal.hidden = true;
-      pmImg.style.opacity = '';
+      pmMedia.style.opacity = '';
       if (modalLocked) { unlock(); modalLocked = false; }
       if (typeof after === 'function') after();
     }, reduceMotion ? 0 : 620);
@@ -548,15 +658,16 @@
     const i = navIds.indexOf(currentId);
     const next = navIds[(i + dir + navIds.length) % navIds.length];
     pmContent.classList.add('is-swapping');
-    pmImg.style.opacity = '0';
+    pmMedia.style.opacity = '0';
     setTimeout(() => {
       currentId = next;
       fillModal(byId(next));
       setUrl(next);
       const scroller = isDesktopModal() ? $('.pmodal__body', modal) : panel;
       if (scroller) scroller.scrollTop = 0;
-      const show = () => { pmImg.style.opacity = ''; pmContent.classList.remove('is-swapping'); };
-      if (pmImg.complete) show(); else { pmImg.addEventListener('load', show, { once: true }); pmImg.addEventListener('error', show, { once: true }); }
+      const show = () => { pmMedia.style.opacity = ''; pmContent.classList.remove('is-swapping'); };
+      const img = $('img', pmMedia);
+      if (!img || img.complete) show(); else { img.addEventListener('load', show, { once: true }); img.addEventListener('error', show, { once: true }); }
     }, reduceMotion ? 0 : 260);
   }
 
@@ -579,8 +690,7 @@
     });
     pmAdd.addEventListener('click', () => {
       addToBag(currentId);
-      const p = byId(currentId);
-      toast(`« ${p.name} » ajouté à votre sélection`);
+      toast(`« ${byId(currentId).name} » ajouté à votre sélection`);
     });
     // swipe between perfumes on touch screens
     let sx = 0; let sy = 0;
@@ -593,8 +703,8 @@
     }, { passive: true });
   }
 
-  /* ---------- Selection (order bag) ---------- */
-  const BAG_KEY = 'nosyhype-selection';
+  /* ---------- Selection (order bag) — prices are given on WhatsApp ---------- */
+  const BAG_KEY = 'nosyhype-selection-v2';
   const drawer = $('#bag');
   let bag = [];
   let drawerOpen = false;
@@ -625,14 +735,9 @@
     renderBag(false);
   }
 
-  function bagMessage(total) {
-    const lines = bag.map((x) => { const p = byId(x.id); return `• ${p.name} × ${x.qty} — ${p.amount ? money(p.amount * x.qty) : p.price}`; });
-    const out = ['Bonjour NOSY HYPE, je souhaite commander :', ...lines];
-    if (total) {
-      out.push('', `Total : ${money(total)}`, `Acompte ${CFG.depositPercent} % (MVOLA) : ${money(depositOf(total))}`);
-    }
-    out.push('', 'Merci de me confirmer la disponibilité.');
-    return out.join('\n');
+  function bagMessage() {
+    const lines = bag.map((x) => `• ${fullName(byId(x.id))} × ${x.qty}`);
+    return ['Bonjour NOSY HYPE, je souhaite commander :', ...lines, '', 'Pouvez-vous me confirmer la disponibilité, le prix total et les frais de livraison ? Ma ville : '].join('\n');
   }
 
   function renderBag(bump) {
@@ -648,10 +753,10 @@
     list.innerHTML = bag.map((x) => {
       const p = byId(x.id);
       return `<li>
-        <img src="${esc(p.image)}" alt="" width="72" height="88" loading="lazy">
+        <span class="bag-thumb">${mediaHTML(p)}</span>
         <div>
+          <p class="bag-brand">${esc(p.brand)}</p>
           <h3>${esc(p.name)}</h3>
-          <p class="bag-price">${esc(p.price)}</p>
           <div class="qty" role="group" aria-label="Quantité pour ${esc(p.name)}">
             <button type="button" data-qty="-1" data-id="${esc(p.id)}" aria-label="Retirer un ${esc(p.name)}"><svg class="i"><use href="#i-minus"/></svg></button>
             <span aria-live="polite">${x.qty}</span>
@@ -661,13 +766,9 @@
         <button type="button" class="bag-remove" data-remove="${esc(p.id)}">Retirer</button>
       </li>`;
     }).join('');
-    const total = bag.reduce((s, x) => s + (byId(x.id).amount || 0) * x.qty, 0);
     $('#bag-empty').hidden = bag.length > 0;
     $('#bag-foot').hidden = bag.length === 0;
-    $('#bag-total').textContent = total ? money(total) : '—';
-    $('#bag-deposit').textContent = total ? money(depositOf(total)) : '—';
-    $('#bag-balance').textContent = total ? money(total - depositOf(total)) : '—';
-    $('#bag-send').href = waLink(bagMessage(total));
+    $('#bag-send').href = waLink(bagMessage());
   }
 
   function openDrawer() {
@@ -702,6 +803,67 @@
       const r = e.target.closest('[data-remove]');
       if (r) { bag = bag.filter((x) => x.id !== r.dataset.remove); saveBag(); renderBag(false); }
     });
+  }
+
+  /* ---------- Reviews ---------- */
+  function initReviews() {
+    const track = $('#reviews-track');
+    if (!track) return;
+    const reviews = (Array.isArray(window.NOSY_REVIEWS) ? window.NOSY_REVIEWS : []).filter((r) => r && r.text);
+    const section = track.closest('section');
+    if (!reviews.length) {
+      track.innerHTML = '<li class="review review--empty"><p>Soyez le premier à partager votre expérience NOSY HYPE.</p></li>';
+    } else {
+      track.innerHTML = reviews.map((r) => {
+        const n = Math.max(0, Math.min(5, Math.round(Number(r.rating) || 5)));
+        const stars = Array.from({ length: 5 }, (_, i) => `<svg class="i${i < n ? ' is-on' : ''}"><use href="#i-star"/></svg>`).join('');
+        return `<li class="review">
+          <div class="review__top">
+            <span class="review__stars" role="img" aria-label="${n} sur 5">${stars}</span>
+            ${r.exemple ? '<span class="review__flag">Exemple</span>' : ''}
+          </div>
+          <blockquote class="review__text">${esc(r.text)}</blockquote>
+          <footer class="review__who">
+            <span class="review__avatar" aria-hidden="true">${esc(String(r.name || '?').trim()[0] || '?')}</span>
+            <span><strong>${esc(r.name || 'Client')}</strong>${r.city ? `<span>${esc(r.city)}</span>` : ''}</span>
+            ${r.perfume ? `<span class="review__perfume">${esc(r.perfume)}</span>` : ''}
+          </footer>
+        </li>`;
+      }).join('');
+    }
+    const notice = $('#reviews-notice');
+    if (notice) notice.hidden = !reviews.some((r) => r.exemple);
+    $$('[data-rev]', section).forEach((b) => b.addEventListener('click', () => {
+      const card = $('.review', track);
+      const w = card ? card.getBoundingClientRect().width + 16 : 320;
+      track.scrollBy({ left: w * parseInt(b.dataset.rev, 10), behavior: reduceMotion ? 'auto' : 'smooth' });
+    }));
+  }
+
+  /* ---------- Private request: typing "search" radar ---------- */
+  function initRadar() {
+    const el = $('[data-typed]');
+    if (!el || reduceMotion || !PRODUCTS.length) return;
+    const names = PRODUCTS.filter((p) => p.vedette).concat(PRODUCTS.slice(12, 20)).map((p) => p.name).slice(0, 14);
+    let k = 0; let i = 0; let deleting = false; let visible = false; let timer = null;
+    const tick = () => {
+      if (!visible) { timer = null; return; }
+      const word = names[k % names.length];
+      if (!deleting) {
+        i++;
+        el.textContent = word.slice(0, i);
+        if (i >= word.length) { deleting = true; timer = setTimeout(tick, 1600); return; }
+        timer = setTimeout(tick, 70 + Math.random() * 60);
+      } else {
+        i--;
+        el.textContent = word.slice(0, i);
+        if (i <= 0) { deleting = false; k++; timer = setTimeout(tick, 350); return; }
+        timer = setTimeout(tick, 30);
+      }
+    };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((en) => { visible = en[0].isIntersecting; if (visible && !timer) tick(); }).observe(el.closest('.radar'));
+    }
   }
 
   /* ---------- Payment helpers: copy MVOLA number, deposit calculator ---------- */
@@ -747,7 +909,7 @@
     const bal = $('[data-calc="balance"]', form);
     form.addEventListener('submit', (e) => e.preventDefault());
     input.addEventListener('input', () => {
-      const n = parsePrice(input.value);
+      const n = parseAmount(input.value);
       input.value = n ? nf.format(n).replace(/\s/g, ' ') : '';
       dep.textContent = n ? money(depositOf(n)) : '—';
       bal.textContent = n ? money(n - depositOf(n)) : '—';
@@ -760,6 +922,7 @@
     const form = $('#contact-form');
     if (!form) return;
     const name = $('#cf-name');
+    const city = $('#cf-city');
     const perfume = $('#cf-perfume');
     const msg = $('#cf-msg');
     const err = $('#cf-error');
@@ -772,6 +935,7 @@
       if (missing.length) { missing[0].focus(); return; }
       const text = [
         `Bonjour NOSY HYPE, je m'appelle ${name.value.trim()}.`,
+        city && city.value.trim() ? `Ville : ${city.value.trim()}` : '',
         perfume.value.trim() ? `Parfum souhaité : ${perfume.value.trim()}` : '',
         msg.value.trim(),
       ].filter(Boolean).join('\n');
@@ -849,7 +1013,10 @@
   bindConfig();
   $$('[data-split]').forEach(splitWords);
   initReveal();
-  renderCatalogue();
+  initCatalogue();
+  initShowroom();
+  initReviews();
+  initRadar();
   initMenu();
   initModal();
   initBag();
