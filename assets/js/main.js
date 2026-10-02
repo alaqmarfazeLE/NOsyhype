@@ -75,11 +75,14 @@
     return (words.length ? words : [b]).slice(0, 3).map((w) => w[0].toUpperCase()).join('');
   };
 
-  // real photo when provided, otherwise an elegant placeholder card
+  // real photo when provided, otherwise (or if it fails to load) an elegant placeholder card
   function mediaHTML(p, lazy = true) {
     if (p.image) {
-      return `<img class="media" src="${esc(p.image)}" alt="Flacon ${esc(fullName(p))}" width="1200" height="1500"${lazy ? ' loading="lazy"' : ''} decoding="async">`;
+      return `<img class="media photo" src="${esc(p.image)}" alt="Flacon ${esc(fullName(p))}" width="375" height="500"${lazy ? ' loading="lazy"' : ''} decoding="async" referrerpolicy="no-referrer" data-id="${esc(p.id)}">`;
     }
+    return placeholderHTML(p);
+  }
+  function placeholderHTML(p) {
     return `<div class="media ph" role="img" aria-label="${esc(fullName(p))}, photo à venir">
       <span class="ph__orbit" aria-hidden="true"></span>
       <span class="ph__mono" aria-hidden="true">${esc(initials(p.brand))}</span>
@@ -87,6 +90,23 @@
       <span class="ph__name" aria-hidden="true">${esc(p.name)}</span>
       <span class="ph__tag" aria-hidden="true">Photo à venir</span>
     </div>`;
+  }
+
+  // photos fade in once loaded; a photo that cannot load is swapped for the placeholder card
+  function initPhotos() {
+    document.addEventListener('load', (e) => {
+      const img = e.target;
+      if (img && img.classList && img.classList.contains('photo')) img.classList.add('is-loaded');
+    }, true);
+    document.addEventListener('error', (e) => {
+      const img = e.target;
+      if (!(img instanceof HTMLImageElement) || !img.classList.contains('photo')) return;
+      const p = byId(img.dataset.id);
+      if (!p) return;
+      const tmp = document.createElement('div');
+      tmp.innerHTML = placeholderHTML(p);
+      img.replaceWith(tmp.firstElementChild);
+    }, true);
   }
 
   /* ---------- Shop settings → page ---------- */
@@ -1010,6 +1030,7 @@
   }
 
   /* ---------- Boot ---------- */
+  initPhotos();
   bindConfig();
   $$('[data-split]').forEach(splitWords);
   initReveal();

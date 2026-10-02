@@ -35,16 +35,18 @@ communiqués sur WhatsApp.
   "category": "Homme",            // crée automatiquement le filtre
   "description": "Une phrase.",
   "notes": ["Bergamote", "Poivre", "Ambroxan"],
-  "image": "",                    // chemin de la vraie photo, ex. "assets/img/perfumes/dior-sauvage-eau-de-toilette.jpg"
+  "image": "https://fimgs.net/mdimg/perfume/375x500.31861.jpg", // ou votre photo : "assets/img/perfumes/…jpg"
   "available": true,              // false = « Sur demande »
   "vedette": true                 // facultatif : apparaît dans le showroom 3D
 }
 ```
 
-- **Photos** : tant que `image` est vide, une carte « Photo à venir » s'affiche.
-  La liste des noms de fichiers conseillés pour chaque parfum est dans
-  `assets/img/perfumes/LISEZMOI.md`. Utilisez vos propres photos ou les visuels officiels
-  de la marque ou du fournisseur.
+- **Photos** : chaque parfum affiche sa photo officielle, chargée depuis les serveurs
+  d'images de Fragrantica (`fimgs.net`). Si une photo ne se charge pas, une carte
+  « Photo à venir » s'affiche automatiquement. Pour ne plus dépendre d'un site tiers,
+  remplacez-les petit à petit par vos propres photos ou les visuels officiels de la
+  marque ou du fournisseur : la liste des noms de fichiers conseillés est dans
+  `assets/img/perfumes/LISEZMOI.md`.
 - Le showroom 3D montre les parfums marqués `"vedette": true` (12 conseillés).
 
 ### Avis clients (`reviews.js`)
@@ -66,8 +68,9 @@ Le site **n'encaisse aucun paiement**. Il explique la marche à suivre :
 ## Fonctionnalités
 
 - Écran de chargement avec révélation du logo doré
-- Accueil avec un **flacon NOSY HYPE en 3D temps réel** (three.js) qui tourne, à faire pivoter
-  au doigt ou à la souris ; la qualité s'adapte automatiquement aux téléphones moins puissants
+- Accueil avec un **Valentino Born in Roma en 3D temps réel** (three.js, versions Donna et Uomo)
+  qui tourne, à faire pivoter au doigt ou à la souris ; la qualité s'adapte automatiquement
+  aux téléphones moins puissants
 - **Showroom 3D** : un carrousel circulaire des parfums en vedette, à faire tourner
 - Catalogue avec recherche (nom, marque ou note), filtres Femme / Homme / Unisexe et « Voir plus »
 - Fiche parfum avec ouverture animée, carte flottante en 3D, navigation entre parfums

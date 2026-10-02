@@ -451,6 +451,32 @@ strong { font-weight: 600; color: var(--text); }
 .hud__tag--br { bottom: 6px; right: 12px; text-align: right; }
 .hud__tag--br::before { bottom: 0; right: 0; border-left: 0; border-top: 0; }
 .hud__tag--bl, .hud__tag--br { display: none; }
+.hero__controls {
+  position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); z-index: 2;
+  display: flex; align-items: center; gap: 8px; white-space: nowrap;
+}
+.js .hero__controls { opacity: 0; }
+body.is-ready .hero__controls { opacity: 1; transition: opacity 1s var(--ease) 1.2s; }
+.hero__variants {
+  display: flex; padding: 3px; border-radius: var(--pill);
+  border: 1px solid var(--line-strong); background: rgba(10, 10, 10, .55);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.hero__variants button {
+  min-height: 38px; padding: 0 14px; border-radius: var(--pill);
+  font-family: var(--mono); font-size: .64rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+  transition: background-color .4s, color .4s;
+}
+.hero__variants button:hover { color: var(--text); }
+.hero__variants button[aria-pressed="true"] { background: var(--gold); color: #0a0804; }
+.hero__see {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: var(--pill);
+  border: 1px solid rgba(244, 215, 125, .45); background: rgba(10, 10, 10, .55); color: var(--gold-bright);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  font-family: var(--mono); font-size: .64rem; letter-spacing: .16em; text-transform: uppercase;
+  transition: background-color .4s, border-color .4s;
+}
+.hero__see:hover { background: rgba(212, 175, 55, .16); border-color: var(--gold-bright); }
 .hero__drag {
   position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
   display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
@@ -583,6 +609,21 @@ img.media { object-fit: cover; }
   position: absolute; left: 0; right: 0; bottom: 5cqw;
   font-family: var(--mono); font-size: 3.4cqw; letter-spacing: .2em; text-transform: uppercase; color: rgba(232, 216, 176, .38);
 }
+/* real product photos: shown on a light "studio" plate (their white background blends into it) */
+.card__media:has(> .photo), .ring__media:has(> .photo), .pmodal__item:has(> .photo), .bag-thumb:has(> .photo), .ghost:has(> .photo) {
+  background:
+    radial-gradient(60% 9% at 50% 91%, rgba(90, 70, 35, .22), transparent 70%),
+    radial-gradient(120% 90% at 50% 28%, #ffffff 0%, #f7f2e8 42%, #e8ddc7 100%);
+}
+img.photo {
+  object-fit: contain; padding: 7% 10% 10%;
+  mix-blend-mode: multiply;
+  opacity: 0; transition: opacity .7s var(--ease), transform 1.4s var(--ease);
+}
+img.photo.is-loaded { opacity: 1; }
+.bag-thumb img.photo { padding: 6%; }
+.ring__media:has(> .photo) + .ring__cap { background: linear-gradient(transparent, rgba(5, 5, 5, .9) 60%); }
+
 /* in cards the name is printed under the picture: keep the monogram only */
 .card__media .ph__name, .ring__media .ph__name, .ring__media .ph__brand, .bag-thumb .ph__name, .bag-thumb .ph__brand, .bag-thumb .ph__tag { display: none; }
 .bag-thumb .ph__mono { font-size: 34cqw; }

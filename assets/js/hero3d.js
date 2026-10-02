@@ -101,7 +101,7 @@ function init() {
     pm.dispose();
   }
 
-  /* ---------- backdrop: warm glow that the glass refracts ---------- */
+  /* ---------- backdrop: soft glow that the glass refracts ---------- */
   {
     const c = makeCanvas(1024, 1024); const g = c.getContext('2d');
     g.fillStyle = '#050505'; g.fillRect(0, 0, 1024, 1024);
@@ -111,68 +111,120 @@ function init() {
       g.globalCompositeOperation = 'lighter'; g.fillStyle = gr; g.fillRect(0, 0, 1024, 1024);
     };
     glow(512, 470, 470, 'rgba(110,76,28,0.9)', 'rgba(40,26,8,0.55)');
-    glow(512, 600, 210, 'rgba(255,190,100,0.95)', 'rgba(150,95,30,0.6)');
+    glow(512, 600, 220, 'rgba(255,232,214,0.95)', 'rgba(170,125,95,0.55)');
     const bd = new THREE.Mesh(new THREE.PlaneGeometry(16, 16), new THREE.MeshBasicMaterial({ map: tex(c, true), toneMapped: false }));
     bd.position.set(0, 1.2, -7);
     scene.add(bd);
   }
 
-  /* ---------- bottle ---------- */
+  /* ---------- Valentino Born in Roma: studded glass, black cap ---------- */
+  const VARIANTS = {
+    donna: { juice: '#ff8fae', att: 1.0, stud: '#ffc4d2', sub: 'DONNA' },
+    uomo: { juice: '#3a414c', att: 0.32, stud: '#7a828f', sub: 'UOMO' },
+  };
   const bottle = new THREE.Group();
-  const W = 1.3, H = 1.45, D = 0.62;
+  const W = 1.0, H = 1.5, D = 0.6;
+  const FILL_TOP = 1.36;
+  const tint = new THREE.Color(VARIANTS.donna.juice);
+  const glass = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff, roughness: 0.03, transmission: 1, thickness: 0.6, ior: 1.5,
+    attenuationColor: tint, attenuationDistance: VARIANTS.donna.att, clearcoat: 1, clearcoatRoughness: 0.02,
+    envMapIntensity: 1.5, specularIntensity: 1,
+  });
+  glass.onBeforeCompile = (sh) => {
+    sh.uniforms.uFillTop = { value: FILL_TOP };
+    sh.uniforms.uFillBottom = { value: 0.12 };
+    sh.uniforms.uTint = { value: tint };
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying float vLocalY;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvLocalY = position.y;');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying float vLocalY;\nuniform float uFillTop;\nuniform float uFillBottom;\nuniform vec3 uTint;')
+      .replace('vec4 diffuseColor = vec4( diffuse, opacity );', `vec4 diffuseColor = vec4( diffuse, opacity );
+        float inJuice = smoothstep(uFillBottom - 0.006, uFillBottom + 0.006, vLocalY) * (1.0 - smoothstep(uFillTop - 0.004, uFillTop + 0.004, vLocalY));
+        float meniscus = exp(-abs(vLocalY - uFillTop) * 90.0);
+        diffuseColor.rgb *= mix(vec3(1.0), uTint, inJuice * 0.2);`)
+      .replace('material.attenuationColor = attenuationColor;', 'material.attenuationColor = mix(vec3(1.0), attenuationColor, inJuice);')
+      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance += uTint * meniscus * 0.3 + uTint * inJuice * 0.05;');
+  };
+  bottle.add(new THREE.Mesh(block(W, H, D, 0.05, 0.04), glass));
+
+  // the "Rockstud" armour: staggered rows of small glass pyramids on the front and back
+  const studMat = new THREE.MeshPhysicalMaterial({
+    color: new THREE.Color(VARIANTS.donna.stud), metalness: 0.05, roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.03,
+    transparent: true, opacity: 0.6, envMapIntensity: 2.4, specularIntensity: 1,
+  });
   {
-    const tint = new THREE.Color('#d88a2a');
-    const glass = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff, roughness: 0.03, transmission: 1, thickness: 0.7, ior: 1.5,
-      attenuationColor: tint, attenuationDistance: 1.0, clearcoat: 1, clearcoatRoughness: 0.02,
-      envMapIntensity: 1.4, specularIntensity: 1,
+    const pyr = new THREE.ConeGeometry(0.05, 0.045, 4, 1);
+    pyr.rotateY(Math.PI / 4);
+    const positions = [];
+    const step = 0.13;
+    const x0 = -W / 2 + 0.11; const x1 = W / 2 - 0.11;
+    for (let row = 0, y = 0.5; y < H - 0.08; row++, y += step) {
+      const off = row % 2 ? step / 2 : 0;
+      for (let x = x0 + off; x <= x1 + 1e-6; x += step) positions.push([x, y]);
+    }
+    const studs = new THREE.InstancedMesh(pyr, studMat, positions.length * 2);
+    const m = new THREE.Matrix4(); const q = new THREE.Quaternion(); const sc = new THREE.Vector3(1, 1, 1);
+    const front = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2);
+    const back = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
+    positions.forEach(([x, y], i) => {
+      q.copy(front); m.compose(new THREE.Vector3(x, y, D / 2 + 0.0225), q, sc); studs.setMatrixAt(i * 2, m);
+      q.copy(back); m.compose(new THREE.Vector3(x, y, -D / 2 - 0.0225), q, sc); studs.setMatrixAt(i * 2 + 1, m);
     });
-    glass.onBeforeCompile = (sh) => {
-      sh.uniforms.uFillTop = { value: 1.16 };
-      sh.uniforms.uFillBottom = { value: 0.16 };
-      sh.uniforms.uTint = { value: tint };
-      sh.vertexShader = sh.vertexShader
-        .replace('#include <common>', '#include <common>\nvarying float vLocalY;')
-        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvLocalY = position.y;');
-      sh.fragmentShader = sh.fragmentShader
-        .replace('#include <common>', '#include <common>\nvarying float vLocalY;\nuniform float uFillTop;\nuniform float uFillBottom;\nuniform vec3 uTint;')
-        .replace('vec4 diffuseColor = vec4( diffuse, opacity );', `vec4 diffuseColor = vec4( diffuse, opacity );
-          float inJuice = smoothstep(uFillBottom - 0.006, uFillBottom + 0.006, vLocalY) * (1.0 - smoothstep(uFillTop - 0.004, uFillTop + 0.004, vLocalY));
-          float meniscus = exp(-abs(vLocalY - uFillTop) * 90.0);
-          diffuseColor.rgb *= mix(vec3(1.0), uTint, inJuice * 0.2);`)
-        .replace('material.attenuationColor = attenuationColor;', 'material.attenuationColor = mix(vec3(1.0), attenuationColor, inJuice);')
-        .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance += uTint * meniscus * 0.35 + uTint * inJuice * 0.06;');
-    };
-    bottle.add(new THREE.Mesh(block(W, H, D, 0.1, 0.07), glass));
-
-    const gold = new THREE.MeshPhysicalMaterial({ color: new THREE.Color('#e0b955'), metalness: 1, roughness: 0.26, clearcoat: 0.5, clearcoatRoughness: 0.12, envMapIntensity: 1.9 });
-    const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.2, 0.1, 64), gold);
-    collar.position.y = H + 0.05;
-    bottle.add(collar);
-    const capSize = 0.54;
-    const cap = new THREE.Mesh(block(capSize, capSize * 0.86, capSize, 0.06, 0.03), gold);
-    cap.position.y = H + 0.1;
-    bottle.add(cap);
-
-    // engraved gold label (front only)
-    const c = makeCanvas(1024, 512); const g = c.getContext('2d');
-    g.fillStyle = '#000'; g.fillRect(0, 0, 1024, 512);
-    g.fillStyle = '#fff'; g.strokeStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.letterSpacing = '22px';
-    g.font = '500 96px "Cormorant Garamond", Georgia, serif';
-    g.fillText('NOSY HYPE', 512, 222);
-    g.lineWidth = 3; g.beginPath(); g.moveTo(440, 300); g.lineTo(584, 300); g.stroke();
-    g.letterSpacing = '12px';
-    g.font = '400 38px "Cormorant Garamond", Georgia, serif';
-    g.fillText('EAU DE PARFUM', 512, 360);
-    const label = new THREE.Mesh(new THREE.PlaneGeometry(W * 0.7, W * 0.35), new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color('#e6c46a'), metalness: 0.85, roughness: 0.35, emissive: new THREE.Color('#d4af37'), emissiveIntensity: 0.35,
-      alphaMap: tex(c, false), transparent: true, depthWrite: false,
-    }));
-    label.position.set(0, H * 0.48, D / 2 + 0.004);
-    label.renderOrder = 5;
-    bottle.add(label);
+    studs.renderOrder = 4;
+    bottle.add(studs);
   }
+
+  // glossy black cap and neck
+  const lacquer = new THREE.MeshPhysicalMaterial({ color: 0x08080a, metalness: 0.25, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 1.4 });
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.16, 0.08, 48), lacquer);
+  neck.position.y = H + 0.04;
+  bottle.add(neck);
+  const cap = new THREE.Mesh(block(0.58, 0.5, 0.42, 0.05, 0.03), lacquer);
+  cap.position.y = H + 0.08;
+  bottle.add(cap);
+
+  // black label with the Valentino wordmark (redrawn when the variant changes)
+  const labelCanvas = makeCanvas(1024, 256);
+  const labelTex = tex(labelCanvas, true);
+  function drawLabel(sub) {
+    const g = labelCanvas.getContext('2d');
+    g.fillStyle = '#060606'; g.fillRect(0, 0, 1024, 256);
+    g.fillStyle = '#f2f2f2'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.letterSpacing = '26px';
+    g.font = '500 92px "Cormorant Garamond", Georgia, serif';
+    g.fillText('VALENTINO', 525, 100);
+    g.letterSpacing = '10px';
+    g.font = '400 30px "Cormorant Garamond", Georgia, serif';
+    g.fillText(`${sub} · BORN IN ROMA`, 517, 192);
+    labelTex.needsUpdate = true;
+  }
+  drawLabel(VARIANTS.donna.sub);
+  const label = new THREE.Mesh(new THREE.PlaneGeometry(W * 0.78, W * 0.78 / 4), new THREE.MeshPhysicalMaterial({
+    map: labelTex, roughness: 0.3, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 0.9,
+  }));
+  label.position.set(0, 0.3, D / 2 + 0.003);
+  bottle.add(label);
+
+  function applyVariant(name) {
+    const v = VARIANTS[name] || VARIANTS.donna;
+    tint.set(v.juice);
+    glass.attenuationColor.set(v.juice);
+    glass.attenuationDistance = v.att;
+    studMat.color.set(v.stud);
+    drawLabel(v.sub);
+  }
+  // Donna / Uomo switch in the hero
+  stage.querySelectorAll('[data-variant]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      applyVariant(btn.dataset.variant);
+      stage.querySelectorAll('[data-variant]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      const see = stage.querySelector('[data-hero-product]');
+      if (see && btn.dataset.product) see.dataset.openProduct = btn.dataset.product;
+      spin(5);
+    });
+  });
   const lift = 0.16;
   bottle.position.y = lift;
   scene.add(bottle);
@@ -260,6 +312,7 @@ function init() {
   let idle = 0;
   const autoSpeed = reduceMotion ? 0 : 0.42;
   const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
+  function spin(v) { if (!reduceMotion) velocity += v; }
 
   canvas.addEventListener('pointerdown', (e) => {
     dragging = true; lastX = e.clientX; velocity = 0;

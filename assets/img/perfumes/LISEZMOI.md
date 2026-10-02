@@ -8,7 +8,7 @@ Ensuite, dans `assets/js/products.js`, indiquez le chemin de la photo dans le ch
 "image": "assets/img/perfumes/dior-sauvage-eau-de-toilette.jpg"
 ```
 
-Tant que `image` est vide, le site affiche une carte élégante « Photo à venir ».
+Par défaut, chaque parfum utilise sa photo officielle hébergée par Fragrantica (`fimgs.net`). Si une photo ne se charge pas, le site affiche une carte élégante « Photo à venir ».
 
 Utilisez de préférence vos propres photos (vos flacons en stock) ou les visuels officiels fournis par la marque ou votre fournisseur : les photos trouvées sur Pinterest ou Instagram appartiennent à leurs auteurs.
 
