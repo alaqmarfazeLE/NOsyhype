@@ -1,0 +1,27 @@
+# Netlify : site statique, aucune compilation. Chaque push sur la branche de production
+# (branche par défaut du dépôt) remet le site en ligne automatiquement.
+[build]
+  publish = "."
+  command = ""
+
+# Les fichiers de travail du dépôt ne font pas partie du site.
+[[redirects]]
+  from = "/README.md"
+  to = "/"
+  status = 404
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Les photos des flacons (fimgs.net) ne s'affichent que sans référent.
+    Referrer-Policy = "no-referrer"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+
+# Les polices ne changent jamais : cache long. Le reste garde le cache par défaut de Netlify,
+# pour que chaque modification apparaisse tout de suite.
+[[headers]]
+  for = "/assets/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

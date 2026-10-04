@@ -9,6 +9,12 @@ polices Cormorant Garamond et Hanken Grotesk).
 Site statique (HTML / CSS / JavaScript), sans étape de compilation : il suffit d'ouvrir `index.html`
 ou de l'héberger tel quel (GitHub Pages, Netlify, Vercel, un hébergeur classique…).
 
+## Mise en ligne (Netlify)
+
+Le site se publie avec Netlify relié à ce dépôt GitHub : Netlify remet le site en ligne à chaque
+modification de la branche choisie lors de la connexion. Les réglages sont dans `netlify.toml`
+(aucune compilation, dossier publié : la racine du dépôt).
+
 ## Modifier le site
 
 Tout se règle dans **un seul fichier** : `assets/js/catalogue.js`.
