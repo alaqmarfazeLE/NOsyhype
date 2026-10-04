@@ -20,7 +20,7 @@ const SITE = {
 
 // Flacons de l’anneau de l’accueil, dans l’ordre : photos détourées (fond transparent)
 // dans assets/img/bottles/{id}.webp. Pour en ajouter un, déposez son image détourée puis ajoutez son id.
-const RING = [31861, 55805, 81642, 39681, 18471, 210, 75805, 56077, 16657, 25324, 52802, 33519];
+const RING = [31861, 55805, 81642, 39681, 18471, 210, 16657, 25324, 52802, 33519, 45651, 704];
 const BOTTLE = (id) => `assets/img/bottles/${id}.webp`;
 
 // ─── Catalogue ────────────────────────────────────────────────────────────
