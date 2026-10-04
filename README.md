@@ -31,16 +31,13 @@ Tout se règle dans **un seul fichier** : `assets/js/catalogue.js`.
 
 ```js
 const SHOP = {
-  whatsapp: '038 08 827 19',
-  mvola: '038 08 827 19',
+  whatsapp: '038 05 827 19',
+  mvola: '038 05 827 19',
   email: 'alaqmarfazele579@gmail.com',
 };
 ```
 
-Format local (`038 08 827 19`) ou international (`+261 38 08 827 19`) : les liens `wa.me` sont créés automatiquement.
-
-> **À vérifier** : la maquette Claude Design indique **038 08 827 19** ; l'ancienne version du site
-> utilisait **038 05 827 19**. Corrigez `SHOP` si besoin, c'est le seul endroit à changer.
+Format local (`038 05 827 19`) ou international (`+261 38 05 827 19`) : les liens `wa.me` sont créés automatiquement.
 
 ### Parfums (`PERFUMES`)
 

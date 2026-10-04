@@ -3,10 +3,10 @@
 (function () {
 
 // ─── Réglages de la boutique ──────────────────────────────────────────────
-// Numéros au format local (« 038 08 827 19 ») ou international (« +261 38 08 827 19 »).
+// Numéros au format local (« 038 05 827 19 ») ou international (« +261 38 05 827 19 »).
 const SHOP = {
-  whatsapp: '038 08 827 19',   // reçoit toutes les demandes de prix et commandes
-  mvola: '038 08 827 19',      // reçoit l’acompte de 50 %
+  whatsapp: '038 05 827 19',   // reçoit toutes les demandes de prix et commandes
+  mvola: '038 05 827 19',      // reçoit l’acompte de 50 %
   email: 'alaqmarfazele579@gmail.com',
 };
 
@@ -220,7 +220,7 @@ const REVIEWS = [
 
 const askText = (p) => `Bonjour Nosy-Hype ! Je voudrais connaître le prix de : ${p.brand} – ${p.name}${p.conc ? ` (${p.conc})` : ''}. Merci !`;
 
-// Accepte « 038 08 827 19 » ou « +261 38 08 827 19 ».
+// Accepte « 038 05 827 19 » ou « +261 38 05 827 19 ».
 function waLink(num, text) {
   let n = String(num || SHOP.whatsapp).replace(/\D/g, '');
   if (n.length === 10 && n[0] === '0') n = `261${n.slice(1)}`;
