@@ -1,1062 +1,688 @@
-/* =========================================================
-   NOSY HYPE — interactions
-   (no dependencies — the catalogue lives in products.js,
-   reviews in reviews.js, shop settings in config.js;
-   the 3D hero bottle is in hero3d.js)
-   ========================================================= */
-(() => {
+/* Nosy-Hype — interactions du site (d'après la maquette Claude Design « Nosy-Hype Futur »).
+   Les données (réglages, parfums, avis) sont dans catalogue.js ; la carte dans madagascar.js. */
+(function () {
   'use strict';
 
-  /* ---------- Settings & helpers ---------- */
-  const CFG = Object.assign({
-    whatsappNumber: '261380582719',
-    whatsappDisplay: '+261 38 05 827 19',
-    instagramUrl: 'https://www.instagram.com/nosy_hype/',
-    instagramHandle: '@nosy_hype',
-    email: 'alaqmarfazele579@gmail.com',
-    mvolaNumber: '038 05 827 19',
-    depositPercent: 50,
-    currency: 'Ar',
-  }, window.NOSY_CONFIG || {});
+  const C = window.NosyHype;
+  if (!C) return;
 
-  const $ = (s, r = document) => r.querySelector(s);
-  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-  const root = document.documentElement;
-  const body = document.body;
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+  const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (ch) => ESC[ch]);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const plural = (n, w) => `${n} ${w}${n > 1 ? 's' : ''}`;
+  const pad = (n) => String(n).padStart(2, '0');
+  const icon = (id) => `<svg class="i" aria-hidden="true"><use href="#${id}"/></svg>`;
+  const reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const finePointer = !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
 
-  const nf = new Intl.NumberFormat('fr-FR');
-  const money = (n) => `${nf.format(Math.round(n)).replace(/\s/g, ' ')} ${CFG.currency}`;
-  const parseAmount = (str) => { const d = String(str || '').replace(/\D/g, '').slice(0, 12); return d ? parseInt(d, 10) : 0; };
-  const depositOf = (n) => Math.ceil((n * CFG.depositPercent) / 100);
-  const fold = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-  const slugify = (s) => fold(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const waLink = (text) => `https://wa.me/${String(CFG.whatsappNumber).replace(/\D/g, '')}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
-  const tryStore = (kind) => ({
-    get(k) { try { return window[kind].getItem(k); } catch (e) { return null; } },
-    set(k, v) { try { window[kind].setItem(k, v); } catch (e) { /* storage unavailable */ } },
-  });
-  const store = tryStore('localStorage');
-  const session = tryStore('sessionStorage');
-  const inView = (el) => {
-    if (!el) return false;
-    const r = el.getBoundingClientRect();
-    return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth;
+  const SITE = Object.assign({ ringCount: 10, ringSpeed: 9, scrollSpeed: 36, catalogueView: 'Défilement' }, C.SITE || {});
+  const wa = (text) => C.waLink(C.SHOP.whatsapp, text);
+  const MSG = {
+    hello: 'Bonjour Nosy-Hype ! J’aimerais des informations sur vos parfums.',
+    ask: 'Bonjour Nosy-Hype ! Je cherche un parfum précis : ',
+    order: 'Bonjour Nosy-Hype ! Je souhaite passer commande.',
+    'other-city': 'Bonjour Nosy-Hype ! Livrez-vous dans ma ville : ',
   };
 
-  /* ---------- Catalogue data ---------- */
-  const seen = new Set();
-  const PRODUCTS = (Array.isArray(window.NOSY_PRODUCTS) ? window.NOSY_PRODUCTS : []).map((p, i) => {
-    const brand = p.brand || '';
-    const name = p.name || 'Parfum';
-    let id = slugify(`${brand} ${name}`) || `parfum-${i + 1}`;
-    while (seen.has(id)) id += `-${i + 1}`;
-    seen.add(id);
-    const notes = Array.isArray(p.notes) ? p.notes : [];
-    return {
-      id, brand, name, notes,
-      category: p.category || 'Parfum',
-      description: p.description || '',
-      image: p.image || '',
-      available: p.available !== false,
-      vedette: !!p.vedette,
-      haystack: fold([brand, name, p.category, ...notes].join(' ')),
-    };
+  const ALL = C.PERFUMES;
+  const byId = new Map();
+  const byName = new Map();
+  ALL.forEach((p) => {
+    if (!byId.has(p.id)) byId.set(p.id, p);
+    if (!byName.has(p.name)) byName.set(p.name, p);
   });
-  const byId = (id) => PRODUCTS.find((p) => p.id === id);
-  const fullName = (p) => (p.brand ? `${p.brand} — ${p.name}` : p.name);
-  const initials = (brand) => {
-    const b = String(brand || '').trim();
-    if (!b) return 'NH';
-    if (/^[^\s]+&[^\s]+$/.test(b)) return b.split('&').map((w) => w[0].toUpperCase()).join('&');
-    const words = b.split(/\s+/).filter((w) => !/^(de|du|la|le|des|london|parfums)$/i.test(w) || b.split(/\s+/).length === 1);
-    return (words.length ? words : [b]).slice(0, 3).map((w) => w[0].toUpperCase()).join('');
-  };
+  const shortBrand = (b) => C.SHORT[b] || b;
 
-  // real photo when provided, otherwise (or if it fails to load) an elegant placeholder card
-  function mediaHTML(p, lazy = true) {
-    if (p.image) {
-      return `<img class="media photo" src="${esc(p.image)}" alt="Flacon ${esc(fullName(p))}" width="375" height="500"${lazy ? ' loading="lazy"' : ''} decoding="async" referrerpolicy="no-referrer" data-id="${esc(p.id)}">`;
+  /* ─── Coordonnées : un seul endroit à modifier (catalogue.js) ─── */
+  $$('[data-wa]').forEach((a) => { const m = MSG[a.dataset.wa]; if (m) a.href = wa(m); });
+  $$('[data-shop]').forEach((el) => {
+    const k = el.dataset.shop, v = C.SHOP[k];
+    if (!v) return;
+    el.textContent = v;
+    if (k === 'email') el.href = `mailto:${v}`;
+  });
+  $$('[data-year]').forEach((el) => { el.textContent = String(new Date().getFullYear()); });
+
+  /* ─── En-tête : fond au défilement + rubrique en cours ─── */
+  const header = $('[data-header]');
+  const waFloat = $('.wa-float');
+  const navLinks = $$('[data-nav]');
+  const spy = ['top', 'catalogue', 'livraison', 'commander', 'avis', 'contact'].map((id) => document.getElementById(id)).filter(Boolean);
+  let current = 'top';
+  let scrollQueued = false;
+  function onScroll() {
+    scrollQueued = false;
+    header.classList.toggle('is-solid', (window.scrollY || 0) > 24);
+    waFloat.classList.toggle('is-away', window.innerWidth < 1000 && (window.scrollY || 0) < 160);
+    const line = window.innerHeight * 0.4;
+    let id = 'top';
+    spy.forEach((s) => { if (s.getBoundingClientRect().top <= line) id = s.id; });
+    if (id === 'avis') id = 'commander';
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) id = 'contact';
+    if (id !== current) {
+      current = id;
+      navLinks.forEach((a) => {
+        const on = a.dataset.nav === id;
+        a.classList.toggle('is-current', on);
+        if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+      });
     }
-    return placeholderHTML(p);
   }
-  function placeholderHTML(p) {
-    return `<div class="media ph" role="img" aria-label="${esc(fullName(p))}, photo à venir">
-      <span class="ph__orbit" aria-hidden="true"></span>
-      <span class="ph__mono" aria-hidden="true">${esc(initials(p.brand))}</span>
-      <span class="ph__brand" aria-hidden="true">${esc(p.brand)}</span>
-      <span class="ph__name" aria-hidden="true">${esc(p.name)}</span>
-      <span class="ph__tag" aria-hidden="true">Photo à venir</span>
+  const queueScroll = () => { if (!scrollQueued) { scrollQueued = true; requestAnimationFrame(onScroll); } };
+  window.addEventListener('scroll', queueScroll, { passive: true });
+  window.addEventListener('resize', queueScroll);
+  onScroll();
+
+  /* ─── 01 Accueil : anneau de flacons qui tourne ─── */
+  const hero = $('[data-hero]');
+  const ringEl = $('[data-ring]');
+  const titleEl = $('[data-hero-title]');
+  const label = $('[data-label]');
+  const counter = $('[data-counter]');
+  const front = {
+    link: $('[data-front]'),
+    brand: $('[data-front-brand]'),
+    name: $('[data-front-name]'),
+    idx: $('[data-front-idx]'),
+    total: $('[data-front-total]'),
+  };
+  const ring = {
+    items: [], orbs: [], angle: 0, vel: 0, seek: null, drag: null, dragMoved: false,
+    hover: false, lastInteract: -1e9, frontIdx: -1, visible: true, geoDirty: true, g: null,
+  };
+
+  function buildRing() {
+    const n = clamp(Math.round(SITE.ringCount), 6, 12);
+    ring.items = (C.RING || []).filter((id) => byId.has(id)).slice(0, n).map((id) => byId.get(id));
+    // Mise en page de l'accueil dès le départ (et à chaque changement de taille ou de police).
+    const relayout = () => { ring.geoDirty = true; if (!ring.orbs.length) ring.g = geo(); };
+    const ro = new ResizeObserver(relayout);
+    ro.observe(hero);
+    ro.observe(titleEl);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
+    ring.g = geo();
+    ring.geoDirty = false;
+    if (!ring.items.length) return;
+    ringEl.innerHTML = ring.items.map((p, i) => `<a class="orb" href="${esc(wa(C.askText(p)))}" target="_blank" rel="noopener" draggable="false" data-i="${i}" aria-label="${esc(`Demander le prix : ${p.brand} ${p.name}`)}"><span class="orb__glow" aria-hidden="true"></span><img src="${esc(C.BOTTLE(p.id))}" alt="${esc(`${p.brand} ${p.name}`)}" decoding="async" draggable="false"></a>`).join('');
+    ring.orbs = $$('.orb', ringEl);
+    ring.orbs.forEach((orb, i) => {
+      const img = orb.querySelector('img');
+      const ready = () => { orb.dataset.ready = '1'; };
+      if (img.complete && img.naturalWidth) ready();
+      img.addEventListener('load', ready);
+      img.addEventListener('error', () => {
+        // Repli : photo du catalogue (fond blanc fondu dans le ciel).
+        if (img.dataset.fallback) return;
+        img.dataset.fallback = '1';
+        orb.style.mixBlendMode = 'multiply';
+        img.src = C.IMG(ring.items[i].id);
+      });
+      orb.addEventListener('click', (e) => {
+        if (ring.dragMoved) { e.preventDefault(); return; }
+        if (i !== ring.frontIdx) { e.preventDefault(); seekTo(i); }
+      });
+      orb.addEventListener('focus', () => { if (i !== ring.frontIdx) seekTo(i); });
+      orb.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') ring.hover = true; });
+      orb.addEventListener('pointerleave', () => { ring.hover = false; });
+    });
+    front.total.textContent = pad(ring.items.length);
+    label.hidden = false;
+    counter.hidden = false;
+    $$('[data-ring-prev]').forEach((b) => b.addEventListener('click', () => seekTo(ring.frontIdx - 1)));
+    $$('[data-ring-next]').forEach((b) => b.addEventListener('click', () => seekTo(ring.frontIdx + 1)));
+    hero.addEventListener('pointerdown', ringDown);
+    new IntersectionObserver((en) => { ring.visible = en[en.length - 1].isIntersecting; }).observe(hero);
+    setFront(0);
+  }
+
+  function setFront(i) {
+    ring.frontIdx = i;
+    const p = ring.items[i];
+    if (!p) return;
+    front.brand.textContent = shortBrand(p.brand);
+    front.name.textContent = p.name;
+    front.link.href = wa(C.askText(p));
+    front.link.setAttribute('aria-label', `Demander le prix : ${p.brand} ${p.name}`);
+    front.idx.textContent = pad(i + 1);
+  }
+
+  // Géométrie de l'anneau (reprise telle quelle de la maquette) : ellipse à droite du titre
+  // sur grand écran, sous le titre sur téléphone.
+  function geo() {
+    const W = hero.clientWidth || 1;
+    const wide = W >= 1000;
+    const set = (k, v) => hero.style.setProperty(k, v);
+    hero.classList.toggle('is-wide', wide);
+    if (wide) hero.style.minHeight = '';
+    let cx, cy, rx, ry, bh;
+    if (wide) {
+      const H = hero.clientHeight || 1;
+      rx = Math.min(W * 0.18, 340);
+      bh = Math.min(H * 0.36, 320, rx * 0.98);
+      ry = Math.max(22, rx * 0.17);
+      cx = Math.min(W * 0.68, W - rx - bh * 0.37 - 110);
+      cy = H * 0.62;
+    } else {
+      const tb = titleEl.offsetTop + titleEl.offsetHeight;
+      rx = Math.min(W * 0.34, 300);
+      bh = Math.max(150, Math.min(240, W * 0.48));
+      ry = Math.max(18, rx * 0.17);
+      cx = W / 2;
+      cy = tb + 36 + bh - ry;
+      hero.style.minHeight = `${Math.ceil(cy + ry + 120)}px`;
+    }
+    const bw = bh * 0.74, pr = Math.max(rx * 0.95, bh * 0.92);
+    set('--bw', `${Math.round(bw)}px`);
+    set('--bh', `${Math.round(bh)}px`);
+    set('--oL', `${Math.round(cx - rx)}px`);
+    set('--oT', `${Math.round(cy - ry)}px`);
+    set('--oW', `${Math.round(2 * rx)}px`);
+    set('--oH', `${Math.round(2 * ry)}px`);
+    set('--pL', `${Math.round(cx - pr)}px`);
+    set('--pT', `${Math.round(cy - bh * 0.5 - pr)}px`);
+    set('--pD', `${Math.round(2 * pr)}px`);
+    const labL = wide ? Math.min(cx + bw * 0.34 + 34, W - 256 - 96) : Math.max(8, cx - 176);
+    const labT = wide ? Math.max(96, cy + ry - bh * 1.04) : cy + ry + 20;
+    set('--labL', `${Math.round(labL)}px`);
+    set('--labT', `${Math.round(labT)}px`);
+    return { cx, cy, rx, ry, bw, bh };
+  }
+
+  function tickRing(now, dt) {
+    const n = ring.orbs.length;
+    if (!n || !ring.visible) return;
+    if (ring.geoDirty || !ring.g) { ring.geoDirty = false; ring.g = geo(); }
+    const g = ring.g;
+    const step = (Math.PI * 2) / n;
+    if (ring.seek != null) {
+      ring.angle += (ring.seek - ring.angle) * (1 - Math.exp(-dt * 6));
+      if (Math.abs(ring.seek - ring.angle) < 0.0008) { ring.angle = ring.seek; ring.seek = null; }
+    } else if (!ring.drag) {
+      const idle = now - ring.lastInteract > 4000;
+      const speed = (SITE.ringSpeed * Math.PI) / 180;
+      const auto = !reduce && idle ? speed * (ring.hover ? 0.22 : 1) : 0;
+      ring.angle += (auto + ring.vel) * dt;
+      ring.vel *= Math.exp(-dt * 2.4);
+    }
+    let best = -2, bi = 0;
+    for (let i = 0; i < n; i++) {
+      const el = ring.orbs[i];
+      const a = ring.angle + i * step, x = Math.sin(a), z = Math.cos(a), t = (z + 1) / 2;
+      const s = 0.46 + 0.54 * t;
+      const bob = reduce ? 0 : Math.sin(now * 0.0012 + i * 1.7) * 6 * s;
+      const px = g.cx + g.rx * x - g.bw / 2, py = g.cy + g.ry * z - g.bh + bob;
+      el.style.transform = `translate3d(${px.toFixed(1)}px, ${py.toFixed(1)}px, 0) scale(${s.toFixed(3)})`;
+      el.style.zIndex = String(z >= 0 ? 101 + Math.round(z * 90) : 99 + Math.round(z * 90));
+      el.style.opacity = el.dataset.ready === '1' ? (0.62 + 0.38 * t).toFixed(3) : '0';
+      el.style.pointerEvents = t > 0.5 ? 'auto' : 'none';
+      if (z > best) { best = z; bi = i; }
+    }
+    if (bi !== ring.frontIdx) setFront(bi);
+  }
+
+  function seekTo(i) {
+    const n = ring.orbs.length;
+    if (!n) return;
+    const TAU = Math.PI * 2, base = -(((i % n) + n) % n) * (TAU / n);
+    ring.seek = base + Math.round((ring.angle - base) / TAU) * TAU;
+    ring.vel = 0;
+    ring.lastInteract = performance.now();
+  }
+
+  function ringDown(e) {
+    if ((e.button && e.button > 0) || !ring.g) return;
+    if (e.target.closest && e.target.closest('[data-cta]')) return;
+    const x0 = e.clientX, a0 = ring.angle, rx = ring.g.rx || 400;
+    const d = { moved: false, lx: x0, lt: performance.now(), v: 0 };
+    ring.drag = d;
+    ring.seek = null;
+    ring.vel = 0;
+    ring.lastInteract = performance.now();
+    const move = (ev) => {
+      const dx = ev.clientX - x0, t = performance.now();
+      if (Math.abs(dx) > 6) d.moved = true;
+      const inst = (ev.clientX - d.lx) / rx / Math.max(0.008, (t - d.lt) / 1000);
+      d.v = 0.7 * d.v + 0.3 * inst;
+      d.lx = ev.clientX; d.lt = t;
+      ring.angle = a0 + dx / rx;
+      ring.lastInteract = t;
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
+      if (d.moved) ring.vel = clamp(d.v, -3, 3);
+      ring.dragMoved = d.moved;
+      if (ring.drag === d) ring.drag = null;
+      ring.lastInteract = performance.now();
+      setTimeout(() => { ring.dragMoved = false; }, 60);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+  }
+
+  /* ─── 02 Catalogue ─── */
+  // Plateau pastel (aube) + accent lumineux : une teinte par maison.
+  const TINTS = [
+    { plate: 'linear-gradient(165deg,#FFFFFF 0%,#FFFFFF 30%,#E4DEFF 100%)', accent: '#C3BBFF' },
+    { plate: 'linear-gradient(165deg,#FFFFFF 0%,#FFFFFF 30%,#FFD9C4 100%)', accent: '#FFC7A3' },
+    { plate: 'linear-gradient(165deg,#FFFFFF 0%,#FFFFFF 30%,#FBD3E3 100%)', accent: '#F7AECB' },
+    { plate: 'linear-gradient(165deg,#FFFFFF 0%,#FFFFFF 30%,#CFEAF6 100%)', accent: '#A6E1F3' },
+    { plate: 'linear-gradient(165deg,#FFFFFF 0%,#FFFFFF 30%,#F6E3B0 100%)', accent: '#F2D58C' },
+    { plate: 'linear-gradient(165deg,#FFFFFF 0%,#FFFFFF 30%,#CDEEDC 100%)', accent: '#A9E7C7' },
+    { plate: 'linear-gradient(165deg,#FFFFFF 0%,#FFFFFF 30%,#E7D3F6 100%)', accent: '#DDBDF7' },
+    { plate: 'linear-gradient(165deg,#FFFFFF 0%,#FFFFFF 30%,#FBD1C6 100%)', accent: '#F8B2A0' },
+  ];
+  const OTHER = { plate: 'linear-gradient(165deg,#FFFFFF 0%,#FFFFFF 30%,#DCDEF0 100%)', accent: '#C9CCEB' };
+  const RAINBOW = 'conic-gradient(#FFC7A3,#F7AECB,#C3BBFF,#A6E1F3,#F2D58C,#FFC7A3)';
+
+  const idx = C.brandIndex(ALL);
+  const order = {};
+  idx.main.forEach((b, i) => { order[b.name] = i; });
+  const tint = (brand) => (brand === 'Autres' || idx.isOther(brand) ? OTHER : TINTS[(order[brand] || 0) % TINTS.length]);
+
+  const cat = {
+    root: $('[data-catalogue]'),
+    head: $('[data-cat-head]'),
+    count: $('[data-cat-count]'),
+    search: $('[data-search]'),
+    chips: $('[data-chips]'),
+    genders: $('[data-genders]'),
+    views: $('[data-views]'),
+    summary: $('[data-summary]'),
+    reset: $('[data-reset]'),
+    results: $('[data-results]'),
+    moreGroups: $('[data-more-groups]'),
+    empty: $('[data-empty]'),
+    emptyWa: $('[data-empty-wa]'),
+  };
+  const st = {
+    q: '', brand: 'Toutes', g: 'Tous',
+    view: SITE.catalogueView === 'Grille' ? 'grid' : 'defile',
+    groupsShown: 5, limit: 24, cols: 4, vw: window.innerWidth || 1280,
+  };
+  const GENDERS = [['Tous', 'Tous'], ['H', 'Homme'], ['F', 'Femme'], ['M', 'Mixte']];
+  const VIEWS = [['defile', 'Défilement', 'i-marquee'], ['grid', 'Grille', 'i-grid']];
+
+  cat.count.textContent = `${ALL.length} parfums · ${new Set(ALL.map((p) => p.brand)).size} maisons`;
+
+  function card(p, { grid = false, dup = false } = {}) {
+    const t = tint(p.brand);
+    const meta = [p.conc, C.GENRE[p.g]].filter(Boolean).join(' · ');
+    const mono = p.brand.split(/[\s&]+/).map((w) => w[0]).join('').slice(0, 3).toUpperCase();
+    const full = `${p.brand} ${p.name}`;
+    return `<article class="card" style="--plate:${t.plate};--accent:${t.accent}"${dup ? ' aria-hidden="true"' : ''}>
+      <div class="card__plate">
+        <img src="${esc(C.IMG(p.id))}" alt="${esc(full)}" loading="lazy" decoding="async" draggable="false">
+        <div class="card__ph" aria-hidden="true">${esc(mono)}</div>
+        ${p.tag ? `<span class="card__tag">${esc(p.tag)}</span>` : ''}
+      </div>
+      <div class="card__body">
+        <span class="card__brand">${esc(shortBrand(p.brand))}</span>
+        <h4 class="card__name">${esc(p.name)}</h4>
+        <span class="card__meta">${esc(meta)}</span>
+        ${grid && p.notes ? `<span class="card__notes">${esc(p.notes)}</span>` : ''}
+      </div>
+      <a class="card__ask" href="${esc(wa(C.askText(p)))}" target="_blank" rel="noopener" draggable="false" aria-label="${esc(`Demander le prix : ${full}`)}"${dup ? ' tabindex="-1"' : ''}>Demander le prix<span class="card__ask-go">${icon('i-arrow-ur')}</span></a>
+    </article>`;
+  }
+
+  function groupHead({ name, accent, countLabel, open, openLabel }) {
+    return `<div class="group__head" style="--accent:${accent}">
+      <span class="group__dot" aria-hidden="true"></span>
+      <h3 class="group__name">${esc(name)}</h3>
+      <span class="group__count">${esc(countLabel)}</span>
+      ${open ? `<button class="btn btn--outline btn--sm group__open" type="button" data-action="brand" data-brand="${esc(open)}">${esc(openLabel)}</button>` : ''}
     </div>`;
   }
 
-  // photos fade in once loaded; a photo that cannot load is swapped for the placeholder card
-  function initPhotos() {
-    document.addEventListener('load', (e) => {
-      const img = e.target;
-      if (img && img.classList && img.classList.contains('photo')) img.classList.add('is-loaded');
-    }, true);
-    document.addEventListener('error', (e) => {
-      const img = e.target;
-      if (!(img instanceof HTMLImageElement) || !img.classList.contains('photo')) return;
-      const p = byId(img.dataset.id);
-      if (!p) return;
-      const tmp = document.createElement('div');
-      tmp.innerHTML = placeholderHTML(p);
-      img.replaceWith(tmp.firstElementChild);
-    }, true);
-  }
-
-  /* ---------- Shop settings → page ---------- */
-  function bindConfig() {
-    $$('[data-config]').forEach((el) => { const v = CFG[el.dataset.config]; if (v) el.textContent = v; });
-    $$('[data-wa]').forEach((el) => { el.href = waLink(el.dataset.wa); });
-    $$('[data-mail]').forEach((el) => { el.href = `mailto:${CFG.email}`; });
-    $$('[data-ig]').forEach((el) => { el.href = CFG.instagramUrl; });
-    $$('[data-product-total]').forEach((el) => { el.textContent = `· ${PRODUCTS.length} références`; });
-  }
-
-  /* ---------- Toast ---------- */
-  let toastTimer;
-  function toast(msg) {
-    const t = $('#toast');
-    if (!t) return;
-    t.textContent = msg;
-    t.classList.add('is-on');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('is-on'), 2800);
-  }
-
-  /* ---------- Scroll lock & focus trap ---------- */
-  let locks = 0;
-  function lock() {
-    if (locks++ === 0) {
-      const sb = window.innerWidth - root.clientWidth;
-      if (sb > 0) body.style.paddingRight = `${sb}px`;
-      root.classList.add('is-locked');
+  // Une rangée qui défile : les cartes sont répétées pour boucler sans fin.
+  // S'il y a trop peu de parfums pour remplir la largeur, la rangée reste immobile.
+  function marqueeRow(list, dir) {
+    const vw = st.vw || 1280;
+    const cardW = clamp(vw * 0.18, 200, 250) + 14;
+    const avail = cat.results.clientWidth || vw;
+    if (list.length * cardW - 14 <= avail) {
+      return `<div class="marquee is-static"><div class="marquee__track">${list.map((p) => card(p)).join('')}</div></div>`;
     }
-  }
-  function unlock() {
-    if (locks > 0 && --locks === 0) {
-      root.classList.remove('is-locked');
-      body.style.paddingRight = '';
-    }
-  }
-  const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-  function trapTab(e, containers) {
-    if (e.key !== 'Tab') return;
-    const items = containers.flatMap((c) => $$(FOCUSABLE, c)).filter((el) => el.getClientRects().length && !el.closest('[hidden]'));
-    if (!items.length) return;
-    const first = items[0];
-    const last = items[items.length - 1];
-    if (e.shiftKey && (document.activeElement === first || !items.includes(document.activeElement))) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && (document.activeElement === last || !items.includes(document.activeElement))) { e.preventDefault(); first.focus(); }
+    const vis = Math.ceil(vw / 214) + 2;
+    const r = Math.max(2, Math.ceil(vis / list.length) + 1);
+    let html = '';
+    for (let k = 0; k < r; k++) html += list.map((p) => card(p, { dup: k > 0 })).join('');
+    return `<div class="marquee" data-dir="${dir}" data-n="${list.length}"><div class="marquee__track">${html}</div></div>`;
   }
 
-  /* ---------- Loader ---------- */
-  function runLoader(done) {
-    const loader = $('#loader');
-    const bar = $('#loader-progress');
-    if (!loader) { done(); return; }
-    const repeat = session.get('nh-visited') === '1';
-    session.set('nh-visited', '1');
-    const minTime = reduceMotion ? 150 : repeat ? 900 : 2100;
-    const start = performance.now();
-    let p = 0;
-    const setP = (v) => { p = Math.max(p, v); if (bar) bar.style.transform = `scaleX(${p})`; };
-    setP(0.12);
-    const fontsReady = (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => setP(0.45));
-    const stageReady = new Promise((res) => {
-      if (window.__hero3dReady || !$('[data-hero3d]')) { res(); return; }
-      window.addEventListener('hero3d:ready', res, { once: true });
-    }).then(() => setP(0.85));
-    const creep = setInterval(() => setP(Math.min(p + 0.03, 0.92)), 160);
-    const cap = new Promise((res) => setTimeout(res, 3500));
-    Promise.race([Promise.all([fontsReady, stageReady]), cap]).then(() => {
-      const wait = Math.max(0, minTime - (performance.now() - start));
-      setTimeout(() => {
-        clearInterval(creep);
-        setP(1);
-        setTimeout(() => {
-          loader.classList.add('is-done');
-          done();
-          setTimeout(() => loader.remove(), 1300);
-        }, reduceMotion ? 0 : 420);
-      }, wait);
-    });
-  }
+  function render() {
+    const q = st.q.trim();
+    const mode = q ? 'search' : st.brand === 'Toutes' ? 'all' : 'brand';
+    const grid = st.view === 'grid';
+    let html = '', total = 0, groupCount = 0;
 
-  /* ---------- Scroll: progress bar, header state, parallax ---------- */
-  const header = $('#header');
-  const progress = $('.scroll-progress span');
-  const parallax = reduceMotion ? [] : $$('[data-parallax]');
-  let ticking = false;
-  function onScroll() {
-    if (!ticking) { ticking = true; requestAnimationFrame(updateScroll); }
-  }
-  function updateScroll() {
-    ticking = false;
-    const y = window.scrollY;
-    const max = root.scrollHeight - window.innerHeight;
-    if (progress) progress.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;
-    if (header) header.classList.toggle('is-scrolled', y > 24);
-    const vh = window.innerHeight;
-    for (const el of parallax) {
-      const box = el.parentElement.getBoundingClientRect();
-      if (box.bottom < -200 || box.top > vh + 200) continue;
-      const speed = parseFloat(el.dataset.parallax) || 0.1;
-      const limit = box.height * 0.07;
-      const offset = Math.max(-limit, Math.min(limit, (box.top + box.height / 2 - vh / 2) * -speed));
-      el.style.setProperty('--py', `${offset.toFixed(1)}px`);
-    }
-  }
-
-  /* ---------- Navigation: active section indicator ---------- */
-  const navLinks = $$('.nav__link');
-  const mLinks = $$('.mmenu__nav a');
-  const indicator = $('.nav__indicator');
-  let activeKey = null;
-  function moveIndicator() {
-    if (!indicator) return;
-    const a = navLinks.find((l) => l.dataset.nav === activeKey);
-    if (!a) { indicator.classList.remove('is-visible'); return; }
-    indicator.style.width = `${a.offsetWidth}px`;
-    indicator.style.transform = `translateX(${a.offsetLeft}px)`;
-    indicator.classList.add('is-visible');
-  }
-  function setActive(key) {
-    if (key === activeKey) return;
-    activeKey = key;
-    [...navLinks, ...mLinks].forEach((a) => {
-      const on = a.dataset.nav === key;
-      a.classList.toggle('is-active', on);
-      if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
-    });
-    moveIndicator();
-  }
-  function initScrollSpy() {
-    const sections = $$('[data-spy]');
-    if (!('IntersectionObserver' in window) || !sections.length) return;
-    const spy = new IntersectionObserver((entries) => {
-      entries.forEach((en) => { if (en.isIntersecting) setActive(en.target.dataset.spy || null); });
-    }, { rootMargin: '-45% 0px -50% 0px' });
-    sections.forEach((s) => spy.observe(s));
-  }
-
-  /* ---------- Mobile menu ---------- */
-  const burger = $('.burger');
-  const mmenu = $('#mobile-menu');
-  let menuOpen = false;
-  let menuTimer;
-  function openMenu() {
-    if (menuOpen || !mmenu) return;
-    menuOpen = true;
-    clearTimeout(menuTimer);
-    mmenu.hidden = false;
-    burger.setAttribute('aria-expanded', 'true');
-    burger.setAttribute('aria-label', 'Fermer le menu');
-    header.classList.add('menu-open');
-    lock();
-    requestAnimationFrame(() => requestAnimationFrame(() => mmenu.classList.add('is-open')));
-  }
-  function closeMenu() {
-    if (!menuOpen) return;
-    menuOpen = false;
-    mmenu.classList.remove('is-open');
-    burger.setAttribute('aria-expanded', 'false');
-    burger.setAttribute('aria-label', 'Ouvrir le menu');
-    header.classList.remove('menu-open');
-    unlock();
-    menuTimer = setTimeout(() => { if (!menuOpen) mmenu.hidden = true; }, reduceMotion ? 0 : 900);
-  }
-  function initMenu() {
-    if (!burger || !mmenu) return;
-    burger.addEventListener('click', () => (menuOpen ? closeMenu() : openMenu()));
-    mmenu.addEventListener('click', (e) => { if (e.target.closest('a')) closeMenu(); });
-    window.addEventListener('resize', () => { if (menuOpen && window.innerWidth >= 960) closeMenu(); });
-  }
-
-  /* ---------- Split headings into words for the reveal ---------- */
-  function splitWords(el) {
-    let i = 0;
-    const walk = (node) => {
-      Array.from(node.childNodes).forEach((n) => {
-        if (n.nodeType === 3) {
-          const frag = document.createDocumentFragment();
-          n.textContent.split(/([ \t\n\r]+)/).forEach((part) => {
-            if (!part) return;
-            if (/^[ \t\n\r]+$/.test(part)) { frag.appendChild(document.createTextNode(' ')); return; }
-            const w = document.createElement('span');
-            w.className = 'w';
-            const wi = document.createElement('span');
-            wi.className = 'wi';
-            wi.style.setProperty('--i', i++);
-            wi.textContent = part;
-            w.appendChild(wi);
-            frag.appendChild(w);
-          });
-          n.replaceWith(frag);
-        } else if (n.nodeType === 1) {
-          if (n.tagName === 'EM') n.classList.add('is-split');
-          walk(n);
+    if (mode === 'all') {
+      const list = C.filterPerfumes(ALL, { g: st.g });
+      total = list.length;
+      const by = {};
+      list.forEach((p) => { const k = idx.isOther(p.brand) ? 'Autres' : p.brand; (by[k] = by[k] || []).push(p); });
+      const keys = [...idx.main.map((b) => b.name), 'Autres'].filter((k) => by[k]);
+      groupCount = keys.length;
+      const per = st.cols === 3 ? 3 : 4;
+      const labelOf = (k) => (k === 'Autres' ? 'Autres grandes maisons' : k);
+      html = keys.slice(0, st.groupsShown).map((k, i) => {
+        const items = by[k];
+        const head = { name: labelOf(k), accent: tint(k).accent, countLabel: plural(items.length, 'parfum') };
+        if (grid) {
+          head.open = items.length > per ? k : '';
+          head.openLabel = `Voir les ${items.length} →`;
+          return `<div class="group">${groupHead(head)}<div class="grid">${items.slice(0, per).map((p) => card(p, { grid: true })).join('')}</div></div>`;
         }
-      });
-    };
-    walk(el);
+        head.open = items.length > 1 ? k : '';
+        head.openLabel = 'Voir la maison →';
+        return `<div class="group">${groupHead(head)}${marqueeRow(items, i % 2 ? -1 : 1)}</div>`;
+      }).join('');
+    } else {
+      const list = C.filterPerfumes(ALL, { q, brand: mode === 'brand' ? st.brand : 'Toutes', g: st.g });
+      total = list.length;
+      const title = mode === 'search' ? `Résultats pour « ${q} »` : st.brand === 'Autres' ? 'Autres grandes maisons' : st.brand;
+      const head = { name: title, accent: mode === 'search' ? '#FFC7A3' : tint(st.brand).accent, countLabel: plural(total, 'parfum') };
+      if (total && grid) {
+        const more = total > st.limit
+          ? `<button class="btn btn--outline btn--md group__more" type="button" data-action="more">Afficher plus · ${total - st.limit} restants</button>`
+          : '';
+        html = `<div class="group">${groupHead(head)}<div class="grid">${list.slice(0, st.limit).map((p) => card(p, { grid: true })).join('')}</div>${more}</div>`;
+      } else if (total) {
+        const half = Math.ceil(list.length / 2);
+        const parts = list.length > 10 ? [list.slice(0, half), list.slice(half)] : [list];
+        html = `<div class="group">${groupHead(head)}${parts.map((part, i) => marqueeRow(part, i % 2 ? -1 : 1)).join('')}</div>`;
+      }
+    }
+
+    cat.results.className = `cat-results ${grid ? 'is-grid' : 'is-defile'}`;
+    cat.results.innerHTML = html;
+
+    // Filtres
+    const chipList = [
+      { key: 'Toutes', label: 'Toutes', count: ALL.length, dot: RAINBOW },
+      ...idx.main.map((b) => ({ key: b.name, label: b.label, count: b.count, dot: tint(b.name).accent })),
+      ...(idx.others ? [{ key: 'Autres', label: 'Autres maisons', count: idx.others, dot: OTHER.accent }] : []),
+    ];
+    cat.chips.innerHTML = chipList.map((b) => `<button class="chip" type="button" data-action="brand" data-brand="${esc(b.key)}" aria-pressed="${!q && st.brand === b.key}"><span class="chip__dot" style="background:${b.dot}" aria-hidden="true"></span>${esc(b.label)}<span class="chip__count">${b.count}</span></button>`).join('');
+    cat.genders.innerHTML = GENDERS.map(([v, l]) => `<button class="seg__btn" type="button" data-action="genre" data-g="${v}" aria-pressed="${st.g === v}">${l}</button>`).join('');
+    cat.views.className = 'seg seg--views';
+    cat.views.innerHTML = VIEWS.map(([v, l, ic]) => `<button class="seg__btn" type="button" data-action="view" data-view="${v}" aria-pressed="${st.view === v}">${icon(ic)}${l}</button>`).join('');
+
+    cat.summary.textContent = mode === 'all' ? `${plural(total, 'parfum')} · ${plural(groupCount, 'maison')}` : plural(total, 'parfum');
+    cat.reset.hidden = !(q || st.g !== 'Tous' || st.brand !== 'Toutes');
+    const moreGroups = mode === 'all' && groupCount > st.groupsShown;
+    cat.moreGroups.hidden = !moreGroups;
+    if (moreGroups) cat.moreGroups.firstElementChild.textContent = `Afficher plus de maisons · ${groupCount - st.groupsShown} restantes`;
+    cat.empty.hidden = total !== 0;
+    cat.emptyWa.href = wa(`Bonjour Nosy-Hype ! Je cherche « ${q || 'un parfum'} », l’avez-vous ?`);
+
+    syncMarquees();
   }
 
-  /* ---------- Reveal on scroll ---------- */
-  let revealIO = null;
-  function observeReveal(els) {
-    if (!revealIO) { els.forEach((el) => el.classList.add('is-in')); return; }
-    els.forEach((el) => revealIO.observe(el));
+  function set(patch) { Object.assign(st, patch); render(); }
+
+  function selectBrand(brand, scroll) {
+    cat.search.value = '';
+    set({ brand, q: '', limit: 24 });
+    if (scroll) window.scrollTo({ top: cat.head.getBoundingClientRect().top + window.scrollY - 96, behavior: reduce ? 'auto' : 'smooth' });
   }
-  function initReveal() {
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      $$('.reveal, [data-split]').forEach((el) => el.classList.add('is-in'));
+
+  function resetFilters() {
+    cat.search.value = '';
+    set({ q: '', g: 'Tous', brand: 'Toutes', limit: 24, groupsShown: 5 });
+  }
+
+  cat.root.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-action]');
+    if (!b) return;
+    const a = b.dataset.action;
+    if (a === 'brand') selectBrand(b.dataset.brand, b.classList.contains('group__open'));
+    else if (a === 'genre') set({ g: b.dataset.g, limit: 24 });
+    else if (a === 'view') set({ view: b.dataset.view });
+    else if (a === 'more') set({ limit: st.limit + 24 });
+    else if (a === 'more-groups') set({ groupsShown: st.groupsShown + 5 });
+    else if (a === 'reset') resetFilters();
+  });
+  cat.reset.addEventListener('click', resetFilters);
+  cat.search.addEventListener('input', () => set({ q: cat.search.value, limit: 24 }));
+
+  // Photo introuvable : monogramme de la maison à la place.
+  cat.results.addEventListener('error', (e) => {
+    const img = e.target;
+    if (img && img.tagName === 'IMG') { const pl = img.closest('.card__plate'); if (pl) pl.classList.add('is-broken'); }
+  }, true);
+
+  // Grille : léger effet 3D sur le flacon au survol.
+  if (finePointer) {
+    cat.results.addEventListener('mousemove', (e) => {
+      const el = e.target.closest('.grid .card__plate');
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+      el.style.setProperty('--ry', `${(x * 24).toFixed(2)}deg`);
+      el.style.setProperty('--rx', `${(-y * 16).toFixed(2)}deg`);
+      el.style.setProperty('--lift', '1');
+    });
+    cat.results.addEventListener('mouseout', (e) => {
+      const el = e.target.closest('.grid .card__plate');
+      if (!el || el.contains(e.relatedTarget)) return;
+      el.style.setProperty('--ry', '0deg');
+      el.style.setProperty('--rx', '0deg');
+      el.style.setProperty('--lift', '0');
+    });
+  }
+
+  // Défilement continu : chaque rangée boucle, pause au survol, glisser pour avancer.
+  let mqs = [];
+  let mqIO = null;
+  let mqMoved = false;
+  function syncMarquees() {
+    if (mqIO) mqIO.disconnect();
+    mqs = $$('.marquee:not(.is-static)', cat.results).map((el) => {
+      const m = { el, track: el.firstElementChild, dir: Number(el.dataset.dir) < 0 ? -1 : 1, n: Number(el.dataset.n) || 0, off: 0, v: 0, setW: 0, vis: true, hover: false, focus: false, drag: false };
+      el.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') m.hover = true; });
+      el.addEventListener('pointerleave', () => { m.hover = false; });
+      el.addEventListener('focusin', () => { m.focus = true; });
+      el.addEventListener('focusout', () => { m.focus = false; });
+      el.addEventListener('pointerdown', (e) => mqDown(e, m));
+      return m;
+    });
+    mqIO = new IntersectionObserver((en) => en.forEach((e) => {
+      const m = mqs.find((x) => x.el === e.target);
+      if (m) m.vis = e.isIntersecting;
+    }), { rootMargin: '120px 0px' });
+    mqs.forEach((m) => mqIO.observe(m.el));
+  }
+
+  function tickMarquees(dt) {
+    const base = reduce ? 0 : SITE.scrollSpeed;
+    for (const m of mqs) {
+      if (!m.vis) continue;
+      if (!m.setW) {
+        const it = m.track.children;
+        if (m.n && it.length > m.n) m.setW = it[m.n].offsetLeft - it[0].offsetLeft;
+        if (!m.setW) continue;
+      }
+      if (!m.drag) {
+        const target = m.hover || m.focus ? 0 : base * m.dir;
+        m.v += (target - m.v) * (1 - Math.exp(-dt * 3));
+        m.off += m.v * dt;
+      }
+      m.off = ((m.off % m.setW) + m.setW) % m.setW;
+      m.track.style.transform = `translate3d(${(-m.off).toFixed(1)}px,0,0)`;
+    }
+  }
+
+  function mqDown(e, m) {
+    if (e.button && e.button > 0) return;
+    const x0 = e.clientX, off0 = m.off;
+    let moved = false;
+    m.drag = true;
+    m.el.classList.add('is-dragging');
+    const move = (ev) => { const dx = ev.clientX - x0; if (Math.abs(dx) > 6) moved = true; m.off = off0 - dx; };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
+      m.drag = false;
+      m.v = 0;
+      m.el.classList.remove('is-dragging');
+      mqMoved = moved;
+      setTimeout(() => { mqMoved = false; }, 60);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+  }
+  // Après un glisser, le relâchement ne doit pas ouvrir WhatsApp.
+  cat.results.addEventListener('click', (e) => { if (mqMoved && e.target.closest('.marquee')) e.preventDefault(); }, true);
+
+  // Largeur : nombre de colonnes de la grille et longueur des rangées qui défilent.
+  function measure() {
+    const W = cat.head.clientWidth, vw = window.innerWidth || W;
+    const minW = clamp(vw * 0.22, 150, 280), gap = clamp(vw * 0.012, 10, 16);
+    const cols = Math.max(1, Math.floor((W + gap) / (minW + gap)));
+    mqs.forEach((m) => { m.setW = 0; });
+    const patch = {};
+    if (cols !== st.cols) patch.cols = cols;
+    if (Math.abs(vw - st.vw) > 60) patch.vw = vw;
+    if (Object.keys(patch).length) set(patch);
+  }
+  new ResizeObserver(measure).observe(cat.head);
+
+  /* ─── 03 Livraison : carte de Madagascar ─── */
+  const CITIES = ['Antananarivo', 'Toamasina', 'Mahajanga', 'Antsiranana', 'Toliara', 'Fianarantsoa', 'Nosy Be', 'Taolagnaro', 'Antsirabe', 'Morondava', 'Sainte-Marie', 'Sambava', 'Manakara'];
+  const mapEl = $('[data-map]');
+  const citiesEl = $('[data-cities]');
+  const cityCta = $('[data-city-cta]');
+  const cityLabel = $('[data-city-label]');
+  let city = '', hoverCity = '', hubName = 'Antananarivo';
+
+  function mapSVG(M) {
+    const { w, h, d, cities } = M, anim = !reduce;
+    const hub = cities.find((c) => c.name === 'Antananarivo') || cities[0];
+    hubName = hub.name;
+    const routes = cities.filter((c) => c !== hub).map((c, i) => {
+      const dx = c.x - hub.x, dy = c.y - hub.y, L = Math.hypot(dx, dy) || 1, k = 0.22 * L * (i % 2 ? 1 : -1);
+      const qx = (hub.x + c.x) / 2 - (dy / L) * k, qy = (hub.y + c.y) / 2 + (dx / L) * k;
+      const p = `M${hub.x} ${hub.y} Q${qx.toFixed(1)} ${qy.toFixed(1)} ${c.x} ${c.y}`;
+      const dash = anim ? '<animate attributeName="stroke-dashoffset" values="0;-18" dur="1.4s" repeatCount="indefinite"/>' : '';
+      const dot = anim ? `<circle r="2.6" fill="#FFE6F0" filter="url(#nhGlow)"><animateMotion dur="${(2.6 + (i % 4) * 0.5).toFixed(1)}s" begin="${(i * 0.35).toFixed(2)}s" repeatCount="indefinite" path="${p}"/></circle>` : '';
+      return `<g data-route="${esc(c.name)}"><path d="${p}" fill="none" stroke="url(#nhRoute)" stroke-width="1.2" stroke-dasharray="3 6" stroke-linecap="round" opacity="0.7">${dash}</path>${dot}</g>`;
+    }).join('');
+    const pts = cities.map((c, i) => {
+      const isHub = c === hub, e = c.side === 'e', dl = ((i * 0.37) % 2.6).toFixed(2);
+      const pulse = anim ? `<circle r="3" fill="none" stroke="#FFD9C4" stroke-width="1"><animate attributeName="r" values="3;${isHub ? 22 : 14}" dur="2.6s" begin="${dl}s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values="0.85;0" dur="2.6s" begin="${dl}s" repeatCount="indefinite"/></circle>` : '';
+      return `<g data-city="${esc(c.name)}"${isHub ? ' data-hub=""' : ''} transform="translate(${c.x} ${c.y})"><title>${esc(c.name)}</title><circle r="16" fill="transparent"/>${pulse}<circle data-dot="" r="${isHub ? 4.5 : 3}" fill="${isHub ? '#FFD9C4' : '#FFFFFF'}"/><text x="${e ? 10 : -10}" y="3.8" text-anchor="${e ? 'start' : 'end'}" font-family="Hanken Grotesk, sans-serif" font-size="10.5" font-weight="600" letter-spacing="1.4" fill="#C9CCEB">${esc(c.name.toUpperCase())}</text></g>`;
+    }).join('');
+    const scan = anim ? `<rect x="0" y="-160" width="${w}" height="160" fill="url(#nhScan)"><animate attributeName="y" values="-160;${h}" dur="6s" repeatCount="indefinite"/></rect>` : '';
+    return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Carte de Madagascar : livraison dans toute l’île, depuis Antananarivo">
+<defs>
+<linearGradient id="nhEdge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFC7A3"/><stop offset="0.35" stop-color="#F7AECB"/><stop offset="0.7" stop-color="#C3BBFF"/><stop offset="1" stop-color="#A6E1F3"/></linearGradient>
+<radialGradient id="nhFill" cx="0.55" cy="0.42" r="0.75"><stop offset="0" stop-color="#2D3274"/><stop offset="1" stop-color="#141A44"/></radialGradient>
+<pattern id="nhDots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="0.9" fill="#C3BBFF" fill-opacity="0.35"/></pattern>
+<linearGradient id="nhRoute" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFD9C4"/><stop offset="1" stop-color="#F7AECB"/></linearGradient>
+<linearGradient id="nhScan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C3BBFF" stop-opacity="0"/><stop offset="0.5" stop-color="#C3BBFF" stop-opacity="0.25"/><stop offset="1" stop-color="#C3BBFF" stop-opacity="0"/></linearGradient>
+<clipPath id="nhClip"><path d="${d}"/></clipPath>
+<filter id="nhBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="10"/></filter>
+<filter id="nhGlow" x="-300%" y="-300%" width="700%" height="700%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<path d="${d}" fill="none" stroke="#B49CFF" stroke-opacity="0.5" stroke-width="14" filter="url(#nhBlur)"/>
+<path d="${d}" fill="url(#nhFill)"/>
+<g clip-path="url(#nhClip)"><rect width="${w}" height="${h}" fill="url(#nhDots)"/>${scan}</g>
+<path d="${d}" fill="none" stroke="url(#nhEdge)" stroke-width="1.6" stroke-linejoin="round"/>
+${routes}
+${pts}
+</svg>`;
+  }
+
+  function paintCity() {
+    const on = hoverCity || city;
+    const focus = on && on !== hubName;
+    $$('[data-city]', mapEl).forEach((g) => {
+      const a = g.getAttribute('data-city') === on, hub = g.hasAttribute('data-hub');
+      const dot = g.querySelector('[data-dot]'), txt = g.querySelector('text');
+      if (dot) { dot.setAttribute('r', a ? '6' : hub ? '4.5' : '3'); dot.setAttribute('fill', a ? '#FFC7A3' : hub ? '#FFD9C4' : '#FFFFFF'); }
+      if (txt) { txt.setAttribute('fill', a ? '#FFFFFF' : '#C9CCEB'); txt.setAttribute('font-size', a ? '12.5' : '10.5'); }
+    });
+    $$('[data-route]', mapEl).forEach((r) => {
+      const a = r.getAttribute('data-route') === on, p = r.querySelector('path');
+      if (p) { p.setAttribute('opacity', focus ? (a ? '1' : '0.22') : '0.7'); p.setAttribute('stroke-width', a ? '2.2' : '1.2'); }
+    });
+  }
+
+  function setCity(name) {
+    city = city === name ? '' : name;
+    $$('[data-city-btn]', citiesEl).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.cityBtn === city)));
+    cityLabel.textContent = city ? `Commander depuis ${city}` : 'Demander la livraison';
+    cityCta.href = wa(city ? `Bonjour Nosy-Hype ! Je suis à ${city} et je voudrais commander un parfum.` : 'Bonjour Nosy-Hype ! Livrez-vous dans ma ville : ');
+    paintCity();
+  }
+
+  citiesEl.insertAdjacentHTML('afterbegin', CITIES.map((n) => `<button class="chip" type="button" data-city-btn="${esc(n)}" aria-pressed="false">${esc(n)}</button>`).join(''));
+  citiesEl.addEventListener('click', (e) => { const b = e.target.closest('[data-city-btn]'); if (b) setCity(b.dataset.cityBtn); });
+  citiesEl.addEventListener('mouseover', (e) => { const b = e.target.closest('[data-city-btn]'); const n = b ? b.dataset.cityBtn : ''; if (n !== hoverCity) { hoverCity = n; paintCity(); } });
+  citiesEl.addEventListener('mouseleave', () => { hoverCity = ''; paintCity(); });
+  setCity('');
+
+  if (window.NosyMap && mapEl) {
+    mapEl.innerHTML = mapSVG(window.NosyMap);
+    const pick = (e) => { const g = e.target.closest && e.target.closest('[data-city]'); return g ? g.getAttribute('data-city') : ''; };
+    mapEl.addEventListener('click', (e) => { const n = pick(e); if (n) setCity(n); });
+    mapEl.addEventListener('mouseover', (e) => { const n = pick(e); if (n !== hoverCity) { hoverCity = n; paintCity(); } });
+    mapEl.addEventListener('mouseleave', () => { hoverCity = ''; paintCity(); });
+    paintCity();
+  }
+
+  /* ─── 04 Commander : copier le numéro MVola ─── */
+  const copyBtn = $('[data-copy-mvola]');
+  const copyLabel = $('[data-copy-label]');
+  let copyT = 0;
+  copyBtn.addEventListener('click', async () => {
+    const ok = await C.copyText(String(C.SHOP.mvola).replace(/\D/g, ''));
+    if (!ok) {
+      // Copie impossible : on sélectionne le numéro pour une copie manuelle.
+      const num = $('.mvola__num');
+      const sel = window.getSelection(), r = document.createRange();
+      r.selectNodeContents(num); sel.removeAllRanges(); sel.addRange(r);
       return;
     }
-    revealIO = new IntersectionObserver((entries) => {
-      entries.forEach((en) => {
-        if (en.isIntersecting) { en.target.classList.add('is-in'); revealIO.unobserve(en.target); }
-      });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
-    observeReveal($$('.reveal, [data-split]'));
-  }
-
-  /* ---------- Subtle 3D tilt + gold reflection that follows the pointer ---------- */
-  function bindTilt(el, max) {
-    if (!finePointer || reduceMotion || !el) return;
-    el.addEventListener('pointermove', (e) => {
-      const r = el.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width;
-      const y = (e.clientY - r.top) / r.height;
-      el.style.setProperty('--ry', `${((x - 0.5) * max * 2).toFixed(2)}deg`);
-      el.style.setProperty('--rx', `${((0.5 - y) * max * 2).toFixed(2)}deg`);
-      el.style.setProperty('--mx', `${(x * 100).toFixed(1)}%`);
-      el.style.setProperty('--my', `${(y * 100).toFixed(1)}%`);
-    });
-    el.addEventListener('pointerleave', () => {
-      el.style.setProperty('--rx', '0deg');
-      el.style.setProperty('--ry', '0deg');
-    });
-  }
-
-  /* ---------- Collection: search, filters, cards, "voir plus" ---------- */
-  const PAGE = 12;
-  const grid = $('#product-grid');
-  const filtersEl = $('#filters');
-  const countEl = $('#product-count');
-  const moreBtn = $('#more');
-  const emptyEl = $('#grid-empty');
-  const searchEl = $('#search');
-  const state = { cat: 'all', q: '', limit: PAGE };
-
-  const matches = () => {
-    const words = fold(state.q).split(/\s+/).filter(Boolean);
-    return PRODUCTS.filter((p) => (state.cat === 'all' || p.category === state.cat) && words.every((w) => p.haystack.includes(w)));
-  };
-
-  function cardHTML(p, i) {
-    return `
-      <div class="grid__item reveal" data-id="${esc(p.id)}" style="--d:${((i % 3) * 0.08).toFixed(2)}s">
-        <article class="card">
-          <div class="card__media">
-            ${mediaHTML(p)}
-            ${p.available ? '' : '<span class="card__badge">Sur demande</span>'}
-            <span class="card__scan" aria-hidden="true"></span>
-            <span class="card__sheen" aria-hidden="true"></span>
-          </div>
-          <div class="card__body">
-            <p class="card__brand">${esc(p.brand)}</p>
-            <h3 class="card__name">${esc(p.name)}</h3>
-            <p class="card__notes">${p.notes.map(esc).join(' · ')}</p>
-            <div class="card__foot">
-              <span class="card__cat">${esc(p.category)}</span>
-              <span class="card__cta" aria-hidden="true"><span class="card__cta-txt">Découvrir</span><svg class="i"><use href="#i-arrow"/></svg></span>
-            </div>
-          </div>
-          <button class="card__hit" type="button" data-open-product="${esc(p.id)}"
-            aria-label="Découvrir ${esc(fullName(p))} — ${esc(p.category)}${p.available ? '' : ', sur demande'}"></button>
-        </article>
-      </div>`;
-  }
-
-  function renderGrid(append = false) {
-    if (!grid) return;
-    const list = matches();
-    const shown = $$('.grid__item', grid).length;
-    if (append) {
-      const tmp = document.createElement('div');
-      tmp.innerHTML = list.slice(shown, state.limit).map((p, i) => cardHTML(p, i)).join('');
-      const fresh = Array.from(tmp.children);
-      fresh.forEach((el) => grid.appendChild(el));
-      fresh.forEach((el) => bindTilt($('.card', el), 4));
-      observeReveal(fresh);
-    } else {
-      grid.innerHTML = list.slice(0, state.limit).map(cardHTML).join('');
-      $$('.card', grid).forEach((c) => bindTilt(c, 4));
-      observeReveal($$('.grid__item', grid));
-    }
-    const left = Math.max(0, list.length - state.limit);
-    if (moreBtn) {
-      moreBtn.hidden = left === 0;
-      $('#more-count').textContent = `(${left})`;
-    }
-    if (countEl) countEl.textContent = `${list.length} parfum${list.length > 1 ? 's' : ''}`;
-    if (emptyEl) {
-      emptyEl.hidden = list.length > 0;
-      const q = state.q.trim();
-      $('#empty-wa').href = waLink(`Bonjour NOSY HYPE, je recherche le parfum : ${q || ''}`);
-    }
-  }
-
-  function initCatalogue() {
-    if (!grid) return;
-    const cats = [...new Set(PRODUCTS.map((p) => p.category))];
-    if (filtersEl) {
-      const count = (c) => PRODUCTS.filter((p) => c === 'all' || p.category === c).length;
-      filtersEl.innerHTML = [['all', 'Tous'], ...cats.map((c) => [c, c])]
-        .map(([v, label]) => `<button class="chip" type="button" data-filter="${esc(v)}" aria-pressed="${v === 'all'}">${esc(label)}<sup>${count(v)}</sup></button>`)
-        .join('');
-      filtersEl.addEventListener('click', (e) => {
-        const chip = e.target.closest('.chip');
-        if (!chip || chip.dataset.filter === state.cat) return;
-        state.cat = chip.dataset.filter;
-        state.limit = PAGE;
-        $$('.chip', filtersEl).forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
-        renderGrid();
-      });
-      if (cats.length < 2) filtersEl.hidden = true;
-    }
-    if (searchEl) {
-      let t;
-      searchEl.addEventListener('input', () => {
-        clearTimeout(t);
-        t = setTimeout(() => { state.q = searchEl.value; state.limit = PAGE; renderGrid(); }, 140);
-      });
-      searchEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
-    }
-    if (moreBtn) moreBtn.addEventListener('click', () => { state.limit += PAGE; renderGrid(true); });
-    renderGrid();
-  }
-
-  /* ---------- Showroom: rotating 3D ring of featured perfumes ---------- */
-  function initShowroom() {
-    const stage = $('[data-ring]');
-    const ring = $('#ring');
-    if (!stage || !ring || !PRODUCTS.length) { if (stage) stage.closest('.showroom').hidden = true; return; }
-    let items = PRODUCTS.filter((p) => p.vedette).slice(0, 14);
-    if (items.length < 6) items = PRODUCTS.slice(0, 12);
-    const n = items.length;
-    const step = 360 / n;
-    ring.innerHTML = items.map((p, i) => `
-      <button class="ring__card" type="button" data-open-product="${esc(p.id)}" style="--i:${i}" aria-label="Découvrir ${esc(fullName(p))}">
-        <span class="ring__media">${mediaHTML(p, false)}</span>
-        <span class="ring__cap"><b>${esc(p.brand)}</b><span>${esc(p.name)}</span></span>
-      </button>`).join('');
-    const cards = $$('.ring__card', ring);
-
-    let radius = 0;
-    function layout() {
-      const w = cards[0].offsetWidth || 160;
-      radius = Math.round((w / 2) / Math.tan(Math.PI / n) * 1.22);
-      cards.forEach((c, i) => { c.style.transform = `rotateY(${i * step}deg) translateZ(${radius}px)`; });
-    }
-
-    let rot = 0;
-    let vel = 0;
-    let dragging = false;
-    let moved = 0;
-    let lastX = 0;
-    let hover = false;
-    let visible = false;
-    let running = false;
-    let last = 0;
-    const auto = reduceMotion ? 0 : -9; // degrees per second
-
-    function paint() {
-      ring.style.transform = `translateZ(${-radius}px) rotateX(-6deg) rotateY(${rot}deg)`;
-      cards.forEach((c, i) => {
-        let a = ((i * step + rot) % 360 + 540) % 360 - 180; // -180..180, 0 = facing us
-        const f = Math.cos((a * Math.PI) / 180);
-        c.style.setProperty('--f', Math.max(0, f).toFixed(3));
-        c.style.zIndex = String(Math.round((f + 1) * 50));
-        c.tabIndex = f > 0.2 ? 0 : -1;
-      });
-    }
-    function frame(now) {
-      if (!visible) { running = false; return; }
-      running = true;
-      const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      if (!dragging) {
-        vel *= Math.pow(0.05, dt);
-        rot += (vel + (hover ? 0 : auto)) * dt;
-      }
-      paint();
-      requestAnimationFrame(frame);
-    }
-    const kick = () => { if (!running && visible) { last = performance.now(); requestAnimationFrame(frame); } };
-
-    let pressed = false;
-    stage.addEventListener('pointerdown', (e) => {
-      pressed = true; moved = 0; lastX = e.clientX;
-    });
-    stage.addEventListener('pointermove', (e) => {
-      if (!pressed) return;
-      const dx = e.clientX - lastX; lastX = e.clientX;
-      moved += Math.abs(dx);
-      // only capture the pointer once it is a real drag, so a simple tap still opens the perfume
-      if (!dragging && moved > 6) {
-        dragging = true; vel = 0;
-        try { stage.setPointerCapture(e.pointerId); } catch (err) { /* pointer already released */ }
-      }
-      if (!dragging) return;
-      const d = dx * 0.35;
-      rot += d; vel = d * 60;
-      if (reduceMotion) paint();
-    });
-    const release = () => { pressed = false; dragging = false; };
-    stage.addEventListener('pointerup', release);
-    stage.addEventListener('pointercancel', release);
-    // a drag must not open the perfume under the pointer
-    stage.addEventListener('click', (e) => { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } moved = 0; }, true);
-    stage.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hover = true; });
-    stage.addEventListener('pointerleave', () => { hover = false; });
-    // keyboard: focusing a card turns it to the front
-    cards.forEach((c, i) => c.addEventListener('focus', () => { rot = -i * step; vel = 0; paint(); }));
-
-    layout();
-    paint();
-    window.addEventListener('resize', () => { layout(); paint(); }, { passive: true });
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver((en) => { visible = en[0].isIntersecting; kick(); }).observe(stage);
-    } else { visible = true; kick(); }
-  }
-
-  /* ---------- Product modal (cinematic opening) ---------- */
-  const modal = $('#product-modal');
-  const panel = modal && $('.pmodal__panel', modal);
-  const pmMedia = $('#pm-media');
-  const pmContent = modal && $('.pmodal__content', modal);
-  const pmWa = $('#pm-wa');
-  const pmAdd = $('#pm-add');
-  let modalOpen = false;
-  let currentId = null;
-  let navIds = [];
-  let originEl = null;
-  let lastFocus = null;
-  let hideTimer;
-  let modalLocked = false;
-
-  const isDesktopModal = () => window.matchMedia('(min-width: 900px)').matches;
-  const mediaOf = (el) => el && $('.media', el);
-
-  function fly(sourceEl, from, to, r0, r1, duration) {
-    return new Promise((resolve) => {
-      const g = document.createElement('div');
-      g.className = 'ghost';
-      const clone = sourceEl.cloneNode(true);
-      clone.removeAttribute('loading');
-      g.appendChild(clone);
-      Object.assign(g.style, { left: `${from.left}px`, top: `${from.top}px`, width: `${from.width}px`, height: `${from.height}px`, borderRadius: r0 });
-      body.appendChild(g);
-      if (!g.animate) { g.remove(); resolve(null); return; }
-      const anim = g.animate([
-        { left: `${from.left}px`, top: `${from.top}px`, width: `${from.width}px`, height: `${from.height}px`, borderRadius: r0 },
-        { left: `${to.left}px`, top: `${to.top}px`, width: `${to.width}px`, height: `${to.height}px`, borderRadius: r1 },
-      ], { duration, easing: 'cubic-bezier(.7, 0, .2, 1)', fill: 'forwards' });
-      anim.onfinish = () => resolve(g);
-      anim.oncancel = () => { g.remove(); resolve(null); };
-    });
-  }
-
-  function fillModal(p) {
-    pmMedia.innerHTML = mediaHTML(p, false);
-    $('#pm-brand').textContent = p.brand;
-    $('#pm-cat').textContent = p.category;
-    $('#pm-title').textContent = p.name;
-    const st = $('#pm-status');
-    st.textContent = p.available ? 'À commander' : 'Sur demande';
-    st.className = `pm-status ${p.available ? 'is-available' : 'is-request'}`;
-    $('#pm-desc').textContent = p.description;
-    $('#pm-notes').innerHTML = p.notes.map((n) => `<li>${esc(n)}</li>`).join('');
-    $('.pm-notes', modal).hidden = !p.notes.length;
-    const msg = `Bonjour NOSY HYPE, je souhaite commander le parfum « ${fullName(p)} ». Pouvez-vous me donner le prix et la disponibilité ?`;
-    pmWa.href = waLink(msg);
-    $('span', pmWa).textContent = p.available ? 'Commander sur WhatsApp' : 'Demander sur WhatsApp';
-    pmAdd.hidden = !p.available;
-    const idx = navIds.indexOf(p.id);
-    $('#pm-index').textContent = `${String(idx + 1).padStart(2, '0')} / ${String(navIds.length).padStart(2, '0')}`;
-    $('.pmodal__nav', modal).hidden = navIds.length < 2;
-  }
-
-  function setUrl(id) {
-    try {
-      const u = new URL(window.location.href);
-      if (id) u.searchParams.set('parfum', id); else u.searchParams.delete('parfum');
-      window.history.replaceState(null, '', u.pathname + u.search + u.hash);
-    } catch (e) { /* file:// or sandboxed */ }
-  }
-
-  function openProduct(id, trigger) {
-    const p = byId(id);
-    if (!p || !modal || modalOpen) return;
-    clearTimeout(hideTimer);
-    modalOpen = true;
-    currentId = id;
-    lastFocus = trigger || document.activeElement;
-    const ids = matches().map((x) => x.id);
-    navIds = ids.includes(id) ? ids : PRODUCTS.map((x) => x.id);
-    fillModal(p);
-
-    originEl = trigger ? trigger.closest('.card, .ring__card') : null;
-    const originMedia = mediaOf(originEl);
-    const cinematic = !reduceMotion && originMedia && inView(originMedia);
-
-    modal.hidden = false;
-    panel.scrollTop = 0;
-    const scroller = $('.pmodal__body', modal);
-    if (scroller) scroller.scrollTop = 0;
-    if (!modalLocked) { lock(); modalLocked = true; }
-    setUrl(id);
-    if (cinematic) pmMedia.style.opacity = '0';
-    void modal.offsetWidth; // commit the initial state before animating
-    modal.classList.add('is-open');
-
-    if (cinematic) {
-      const from = originMedia.getBoundingClientRect();
-      const to = pmMedia.getBoundingClientRect();
-      const r0 = originEl.classList.contains('ring__card') ? '16px' : '22px 22px 0 0';
-      originEl.classList.add('is-opening');
-      fly(originMedia, from, to, r0, '20px', 900).then((g) => {
-        pmMedia.style.opacity = '';
-        if (originEl) originEl.classList.remove('is-opening');
-        if (g) requestAnimationFrame(() => requestAnimationFrame(() => g.remove()));
-      });
-    }
-    setTimeout(() => { const c = $('.pmodal__close', modal); if (c && modalOpen) c.focus({ preventScroll: true }); }, 80);
-  }
-
-  function closeProduct(after) {
-    if (!modalOpen) return;
-    modalOpen = false;
-    const gridItem = grid && $(`.grid__item[data-id="${CSS.escape(currentId)}"]`, grid);
-    const candidates = [gridItem && $('.card', gridItem)];
-    if (originEl && originEl.classList.contains('ring__card') && originEl.dataset.openProduct === currentId) candidates.unshift(originEl);
-    const target = candidates.find((c) => c && inView(mediaOf(c)));
-    const targetMedia = mediaOf(target);
-    const fromMedia = mediaOf(pmMedia);
-
-    if (!reduceMotion && targetMedia && fromMedia) {
-      const from = fromMedia.getBoundingClientRect();
-      const to = targetMedia.getBoundingClientRect();
-      const r1 = target.classList.contains('ring__card') ? '16px' : '22px 22px 0 0';
-      target.classList.add('is-opening');
-      fly(fromMedia, from, to, '20px', r1, 750).then((g) => {
-        target.classList.remove('is-opening');
-        if (g) requestAnimationFrame(() => g.remove());
-      });
-      pmMedia.style.opacity = '0';
-    }
-    modal.classList.remove('is-open');
-    setUrl(null);
-    hideTimer = setTimeout(() => {
-      modal.hidden = true;
-      pmMedia.style.opacity = '';
-      if (modalLocked) { unlock(); modalLocked = false; }
-      if (typeof after === 'function') after();
-    }, reduceMotion ? 0 : 620);
-    const back = lastFocus && document.contains(lastFocus) ? lastFocus : null;
-    if (back) back.focus({ preventScroll: true });
-  }
-
-  function stepProduct(dir) {
-    if (!modalOpen || navIds.length < 2) return;
-    const i = navIds.indexOf(currentId);
-    const next = navIds[(i + dir + navIds.length) % navIds.length];
-    pmContent.classList.add('is-swapping');
-    pmMedia.style.opacity = '0';
-    setTimeout(() => {
-      currentId = next;
-      fillModal(byId(next));
-      setUrl(next);
-      const scroller = isDesktopModal() ? $('.pmodal__body', modal) : panel;
-      if (scroller) scroller.scrollTop = 0;
-      const show = () => { pmMedia.style.opacity = ''; pmContent.classList.remove('is-swapping'); };
-      const img = $('img', pmMedia);
-      if (!img || img.complete) show(); else { img.addEventListener('load', show, { once: true }); img.addEventListener('error', show, { once: true }); }
-    }, reduceMotion ? 0 : 260);
-  }
-
-  function initModal() {
-    if (!modal) return;
-    document.addEventListener('click', (e) => {
-      const t = e.target.closest('[data-open-product]');
-      if (t) { e.preventDefault(); openProduct(t.dataset.openProduct, t); }
-    });
-    modal.addEventListener('click', (e) => {
-      if (e.target.closest('[data-close]')) { closeProduct(); return; }
-      const stepBtn = e.target.closest('[data-step]');
-      if (stepBtn) { stepProduct(parseInt(stepBtn.dataset.step, 10)); return; }
-      const to = e.target.closest('[data-close-to]');
-      if (to) {
-        e.preventDefault();
-        const hash = to.getAttribute('href');
-        closeProduct(() => { const el = $(hash); if (el) el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }); });
-      }
-    });
-    pmAdd.addEventListener('click', () => {
-      addToBag(currentId);
-      toast(`« ${byId(currentId).name} » ajouté à votre sélection`);
-    });
-    // swipe between perfumes on touch screens
-    let sx = 0; let sy = 0;
-    const media = $('.pmodal__media', modal);
-    media.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
-    media.addEventListener('touchend', (e) => {
-      const dx = e.changedTouches[0].clientX - sx;
-      const dy = e.changedTouches[0].clientY - sy;
-      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.4) stepProduct(dx < 0 ? 1 : -1);
-    }, { passive: true });
-  }
-
-  /* ---------- Selection (order bag) — prices are given on WhatsApp ---------- */
-  const BAG_KEY = 'nosyhype-selection-v2';
-  const drawer = $('#bag');
-  let bag = [];
-  let drawerOpen = false;
-  let drawerTimer;
-  let drawerFocus = null;
-
-  function loadBag() {
-    try {
-      const raw = JSON.parse(store.get(BAG_KEY) || '[]');
-      bag = Array.isArray(raw) ? raw.filter((x) => x && byId(x.id) && byId(x.id).available).map((x) => ({ id: x.id, qty: Math.max(1, Math.min(20, parseInt(x.qty, 10) || 1)) })) : [];
-    } catch (e) { bag = []; }
-  }
-  const saveBag = () => store.set(BAG_KEY, JSON.stringify(bag));
-
-  function addToBag(id) {
-    const it = bag.find((x) => x.id === id);
-    if (it) it.qty = Math.min(20, it.qty + 1); else bag.push({ id, qty: 1 });
-    saveBag();
-    renderBag(true);
-  }
-  function changeQty(id, delta) {
-    const it = bag.find((x) => x.id === id);
-    if (!it) return;
-    it.qty += delta;
-    if (it.qty < 1) bag = bag.filter((x) => x.id !== id);
-    else it.qty = Math.min(20, it.qty);
-    saveBag();
-    renderBag(false);
-  }
-
-  function bagMessage() {
-    const lines = bag.map((x) => `• ${fullName(byId(x.id))} × ${x.qty}`);
-    return ['Bonjour NOSY HYPE, je souhaite commander :', ...lines, '', 'Pouvez-vous me confirmer la disponibilité, le prix total et les frais de livraison ? Ma ville : '].join('\n');
-  }
-
-  function renderBag(bump) {
-    const count = bag.reduce((s, x) => s + x.qty, 0);
-    $$('[data-bag-count]').forEach((el) => {
-      el.textContent = count;
-      el.classList.toggle('has-items', count > 0);
-      if (bump) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
-    });
-    $$('[data-bag-open]').forEach((b) => b.setAttribute('aria-label', `Ma sélection : ${count} article${count > 1 ? 's' : ''}`));
-    const list = $('#bag-list');
-    if (!list) return;
-    list.innerHTML = bag.map((x) => {
-      const p = byId(x.id);
-      return `<li>
-        <span class="bag-thumb">${mediaHTML(p)}</span>
-        <div>
-          <p class="bag-brand">${esc(p.brand)}</p>
-          <h3>${esc(p.name)}</h3>
-          <div class="qty" role="group" aria-label="Quantité pour ${esc(p.name)}">
-            <button type="button" data-qty="-1" data-id="${esc(p.id)}" aria-label="Retirer un ${esc(p.name)}"><svg class="i"><use href="#i-minus"/></svg></button>
-            <span aria-live="polite">${x.qty}</span>
-            <button type="button" data-qty="1" data-id="${esc(p.id)}" aria-label="Ajouter un ${esc(p.name)}"><svg class="i"><use href="#i-plus"/></svg></button>
-          </div>
-        </div>
-        <button type="button" class="bag-remove" data-remove="${esc(p.id)}">Retirer</button>
-      </li>`;
-    }).join('');
-    $('#bag-empty').hidden = bag.length > 0;
-    $('#bag-foot').hidden = bag.length === 0;
-    $('#bag-send').href = waLink(bagMessage());
-  }
-
-  function openDrawer() {
-    if (drawerOpen || !drawer) return;
-    if (menuOpen) closeMenu();
-    drawerOpen = true;
-    clearTimeout(drawerTimer);
-    drawerFocus = document.activeElement;
-    drawer.hidden = false;
-    lock();
-    void drawer.offsetWidth;
-    drawer.classList.add('is-open');
-    setTimeout(() => { const c = $('.drawer__head .icon-btn', drawer); if (c) c.focus({ preventScroll: true }); }, 60);
-  }
-  function closeDrawer() {
-    if (!drawerOpen) return;
-    drawerOpen = false;
-    drawer.classList.remove('is-open');
-    unlock();
-    drawerTimer = setTimeout(() => { if (!drawerOpen) drawer.hidden = true; }, reduceMotion ? 0 : 700);
-    if (drawerFocus && document.contains(drawerFocus)) drawerFocus.focus({ preventScroll: true });
-  }
-  function initBag() {
-    loadBag();
-    renderBag(false);
-    $$('[data-bag-open]').forEach((b) => b.addEventListener('click', openDrawer));
-    if (!drawer) return;
-    drawer.addEventListener('click', (e) => {
-      if (e.target.closest('[data-bag-close]')) { closeDrawer(); return; }
-      const q = e.target.closest('[data-qty]');
-      if (q) { changeQty(q.dataset.id, parseInt(q.dataset.qty, 10)); return; }
-      const r = e.target.closest('[data-remove]');
-      if (r) { bag = bag.filter((x) => x.id !== r.dataset.remove); saveBag(); renderBag(false); }
-    });
-  }
-
-  /* ---------- Reviews ---------- */
-  function initReviews() {
-    const track = $('#reviews-track');
-    if (!track) return;
-    const reviews = (Array.isArray(window.NOSY_REVIEWS) ? window.NOSY_REVIEWS : []).filter((r) => r && r.text);
-    const section = track.closest('section');
-    if (!reviews.length) {
-      track.innerHTML = '<li class="review review--empty"><p>Soyez le premier à partager votre expérience NOSY HYPE.</p></li>';
-    } else {
-      track.innerHTML = reviews.map((r) => {
-        const n = Math.max(0, Math.min(5, Math.round(Number(r.rating) || 5)));
-        const stars = Array.from({ length: 5 }, (_, i) => `<svg class="i${i < n ? ' is-on' : ''}"><use href="#i-star"/></svg>`).join('');
-        return `<li class="review">
-          <div class="review__top">
-            <span class="review__stars" role="img" aria-label="${n} sur 5">${stars}</span>
-            ${r.exemple ? '<span class="review__flag">Exemple</span>' : ''}
-          </div>
-          <blockquote class="review__text">${esc(r.text)}</blockquote>
-          <footer class="review__who">
-            <span class="review__avatar" aria-hidden="true">${esc(String(r.name || '?').trim()[0] || '?')}</span>
-            <span><strong>${esc(r.name || 'Client')}</strong>${r.city ? `<span>${esc(r.city)}</span>` : ''}</span>
-            ${r.perfume ? `<span class="review__perfume">${esc(r.perfume)}</span>` : ''}
-          </footer>
-        </li>`;
-      }).join('');
-    }
-    const notice = $('#reviews-notice');
-    if (notice) notice.hidden = !reviews.some((r) => r.exemple);
-    $$('[data-rev]', section).forEach((b) => b.addEventListener('click', () => {
-      const card = $('.review', track);
-      const w = card ? card.getBoundingClientRect().width + 16 : 320;
-      track.scrollBy({ left: w * parseInt(b.dataset.rev, 10), behavior: reduceMotion ? 'auto' : 'smooth' });
-    }));
-  }
-
-  /* ---------- Private request: typing "search" radar ---------- */
-  function initRadar() {
-    const el = $('[data-typed]');
-    if (!el || reduceMotion || !PRODUCTS.length) return;
-    const names = PRODUCTS.filter((p) => p.vedette).concat(PRODUCTS.slice(12, 20)).map((p) => p.name).slice(0, 14);
-    let k = 0; let i = 0; let deleting = false; let visible = false; let timer = null;
-    const tick = () => {
-      if (!visible) { timer = null; return; }
-      const word = names[k % names.length];
-      if (!deleting) {
-        i++;
-        el.textContent = word.slice(0, i);
-        if (i >= word.length) { deleting = true; timer = setTimeout(tick, 1600); return; }
-        timer = setTimeout(tick, 70 + Math.random() * 60);
-      } else {
-        i--;
-        el.textContent = word.slice(0, i);
-        if (i <= 0) { deleting = false; k++; timer = setTimeout(tick, 350); return; }
-        timer = setTimeout(tick, 30);
-      }
-    };
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver((en) => { visible = en[0].isIntersecting; if (visible && !timer) tick(); }).observe(el.closest('.radar'));
-    }
-  }
-
-  /* ---------- Payment helpers: copy MVOLA number, deposit calculator ---------- */
-  async function copyText(text) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch (e) {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.setAttribute('readonly', '');
-      ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
-      body.appendChild(ta);
-      ta.select();
-      let ok = false;
-      try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
-      ta.remove();
-      return ok;
-    }
-  }
-  function initPayment() {
-    $$('[data-copy="mvola"]').forEach((btn) => {
-      btn.addEventListener('click', async () => {
-        const ok = await copyText(String(CFG.mvolaNumber).replace(/\s/g, ''));
-        toast(ok ? `Numéro MVOLA copié : ${CFG.mvolaNumber}` : `Numéro MVOLA : ${CFG.mvolaNumber}`);
-        const label = $('span', btn);
-        btn.classList.add('is-copied');
-        if (label) {
-          const prev = label.dataset.label || label.textContent;
-          label.dataset.label = prev;
-          label.textContent = ok ? 'Copié' : prev;
-          setTimeout(() => { label.textContent = prev; btn.classList.remove('is-copied'); }, 2200);
-        } else {
-          setTimeout(() => btn.classList.remove('is-copied'), 2200);
-        }
-      });
-    });
-
-    const form = $('#calc');
-    const input = $('#calc-input');
-    if (!form || !input) return;
-    const dep = $('[data-calc="deposit"]', form);
-    const bal = $('[data-calc="balance"]', form);
-    form.addEventListener('submit', (e) => e.preventDefault());
-    input.addEventListener('input', () => {
-      const n = parseAmount(input.value);
-      input.value = n ? nf.format(n).replace(/\s/g, ' ') : '';
-      dep.textContent = n ? money(depositOf(n)) : '—';
-      bal.textContent = n ? money(n - depositOf(n)) : '—';
-    });
-    bindTilt($('[data-tilt]'), 6);
-  }
-
-  /* ---------- Contact form → WhatsApp ---------- */
-  function initContactForm() {
-    const form = $('#contact-form');
-    if (!form) return;
-    const name = $('#cf-name');
-    const city = $('#cf-city');
-    const perfume = $('#cf-perfume');
-    const msg = $('#cf-msg');
-    const err = $('#cf-error');
-    [name, msg].forEach((f) => f.addEventListener('input', () => f.parentElement.classList.remove('is-invalid')));
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const missing = [name, msg].filter((f) => !f.value.trim());
-      missing.forEach((f) => f.parentElement.classList.add('is-invalid'));
-      err.hidden = missing.length === 0;
-      if (missing.length) { missing[0].focus(); return; }
-      const text = [
-        `Bonjour NOSY HYPE, je m'appelle ${name.value.trim()}.`,
-        city && city.value.trim() ? `Ville : ${city.value.trim()}` : '',
-        perfume.value.trim() ? `Parfum souhaité : ${perfume.value.trim()}` : '',
-        msg.value.trim(),
-      ].filter(Boolean).join('\n');
-      const link = waLink(text);
-      const fallback = $('#cf-fallback');
-      const w = window.open(link, '_blank');
-      if (w) {
-        w.opener = null;
-      } else if (fallback) {
-        // pop-up blocked: offer a real link instead
-        fallback.href = link;
-        fallback.hidden = false;
-        fallback.focus();
-      } else {
-        window.location.href = link;
-      }
-    });
-  }
-
-  /* ---------- Cursor glow (desktop) ---------- */
-  function initCursorGlow() {
-    const glow = $('.cursor-glow');
-    if (!glow || !finePointer || reduceMotion) return;
-    let tx = 0; let ty = 0; let x = 0; let y = 0; let raf = null;
-    const loop = () => {
-      x += (tx - x) * 0.14;
-      y += (ty - y) * 0.14;
-      glow.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
-      raf = Math.abs(tx - x) > 0.4 || Math.abs(ty - y) > 0.4 ? requestAnimationFrame(loop) : null;
-    };
-    window.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse') return;
-      tx = e.clientX; ty = e.clientY;
-      if (!glow.classList.contains('is-on')) { x = tx; y = ty; glow.classList.add('is-on'); }
-      if (!raf) raf = requestAnimationFrame(loop);
-    }, { passive: true });
-    root.addEventListener('mouseleave', () => glow.classList.remove('is-on'));
-  }
-
-  /* ---------- Keyboard: Escape, arrows, focus trap ---------- */
-  function initKeyboard() {
-    document.addEventListener('keydown', (e) => {
-      if (modalOpen) {
-        if (e.key === 'Escape') { closeProduct(); return; }
-        const typing = /INPUT|TEXTAREA/.test(document.activeElement && document.activeElement.tagName);
-        if (!typing && e.key === 'ArrowRight') { stepProduct(1); return; }
-        if (!typing && e.key === 'ArrowLeft') { stepProduct(-1); return; }
-        trapTab(e, [modal]);
-        return;
-      }
-      if (drawerOpen) {
-        if (e.key === 'Escape') { closeDrawer(); return; }
-        trapTab(e, [$('.drawer__panel', drawer)]);
-        return;
-      }
-      if (menuOpen) {
-        if (e.key === 'Escape') { closeMenu(); burger.focus(); return; }
-        trapTab(e, [header, mmenu]);
-      }
-    });
-  }
-
-  /* ---------- WhatsApp button: gentle first-visit hint ---------- */
-  function peekWhatsApp() {
-    const b = $('.wa-float');
-    if (!b || reduceMotion || session.get('nh-peek') === '1') return;
-    session.set('nh-peek', '1');
-    setTimeout(() => {
-      b.classList.add('is-peek');
-      setTimeout(() => b.classList.remove('is-peek'), 4200);
-    }, 3200);
-  }
-
-  /* ---------- Boot ---------- */
-  initPhotos();
-  bindConfig();
-  $$('[data-split]').forEach(splitWords);
-  initReveal();
-  initCatalogue();
-  initShowroom();
-  initReviews();
-  initRadar();
-  initMenu();
-  initModal();
-  initBag();
-  initPayment();
-  initContactForm();
-  initCursorGlow();
-  initKeyboard();
-  initScrollSpy();
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', () => { onScroll(); moveIndicator(); }, { passive: true });
-  if (document.fonts) document.fonts.ready.then(moveIndicator);
-  updateScroll();
-
-  runLoader(() => {
-    body.classList.add('is-ready');
-    moveIndicator();
-    peekWhatsApp();
-    let deep = null;
-    try { deep = new URL(window.location.href).searchParams.get('parfum'); } catch (e) { deep = null; }
-    if (deep && byId(deep)) setTimeout(() => openProduct(deep, null), reduceMotion ? 0 : 700);
+    copyLabel.textContent = 'Numéro copié ✓';
+    clearTimeout(copyT);
+    copyT = setTimeout(() => { copyLabel.textContent = 'Copier le numéro'; }, 2400);
   });
+
+  /* ─── 05 Avis ─── */
+  $('[data-reviews]').innerHTML = C.REVIEWS.slice(0, 3).map((r) => {
+    const p = byName.get(r.p);
+    const stars = clamp(Math.round(r.stars), 0, 5);
+    return `<figure class="review">
+      ${r.exemple ? '<span class="review__flag" title="Avis d’exemple, à remplacer par un vrai avis client">Exemple</span>' : ''}
+      <div class="review__stars" role="img" aria-label="${stars} sur 5"><span class="on">${'★'.repeat(stars)}</span><span class="off">${'★'.repeat(5 - stars)}</span></div>
+      <blockquote class="review__text">« ${esc(r.text)} »</blockquote>
+      <figcaption class="review__who">
+        <span class="review__img">${p ? `<img src="${esc(C.IMG(p.id))}" alt="" loading="lazy" onerror="this.remove()">` : ''}</span>
+        <span class="review__name"><strong>${esc(r.name)}</strong><span>${esc(r.p)}</span></span>
+      </figcaption>
+    </figure>`;
+  }).join('');
+
+  /* ─── Démarrage ─── */
+  render();
+  buildRing();
+  let last = 0;
+  function loop(now) {
+    requestAnimationFrame(loop);
+    const dt = Math.min(0.05, (now - (last || now)) / 1000);
+    last = now;
+    if (document.hidden) return;
+    tickRing(now, dt);
+    tickMarquees(dt);
+  }
+  requestAnimationFrame(loop);
 })();
