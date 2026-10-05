@@ -1,12 +1,11 @@
-/* Nosy_Hype : interactions du site (en-tête, héros, gammes, bandeaux, livraison, copie MVola).
-   Aucune dépendance. Données : js/config.js (boutique) et js/univers.js (univers et gammes).
-   La boutique (catalogue des parfums) est gérée par js/boutique.js. */
+/* Nosy_Hype : interactions du site (en-tête, gammes, bandeaux, livraison, copie MVola).
+   Aucune dépendance. Données : js/config.js (boutique) et js/univers.js (gammes).
+   La boutique est gérée par js/boutique.js, l'anneau de flacons de l'accueil par js/anneau.js. */
 (function () {
   'use strict';
 
   const SHOP = window.SHOP || {};
   const CAT = window.CATALOGUE || {};
-  const FAMILLES = CAT.familles || [];
   const EASE = 'cubic-bezier(.2,.7,.1,1)';
   const COLORS = ['#21D1CA', '#A181EF', '#F77CB0', '#F77C56', '#F5AE4B', '#67D283'];
 
@@ -17,8 +16,6 @@
   const calm = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const finePointer = () => !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
   const wa = (text) => 'https://wa.me/' + SHOP.whatsapp + (text ? '?text=' + encodeURIComponent(text) : '');
-  const emit = (type, detail) => window.dispatchEvent(new CustomEvent(type, { detail: detail }));
-  const state = { heroIdx: 0, hero3d: false };
 
   /* ---------- Micro-animations ---------- */
   document.addEventListener('pointerdown', (e) => {
@@ -141,82 +138,13 @@
     watchLive(el);
   }
 
-  // Univers choisi dans le héros : direction la boutique.
-  function pickFamille() { scrollToId('boutique', true); }
-
-  /* ---------- Héros : univers olfactifs (flacons 3D si disponibles, sinon photo fixe) ---------- */
+  /* ---------- Héros ---------- */
+  // Le bouton WhatsApp flottant reste caché tant que le héros occupe l'écran (l'anneau de flacons est dans js/anneau.js).
   const hero = $('[data-hero]');
-  const uChips = $$('[data-u]');
-  const heroImg = $('[data-hero-img]');
-  const heroStatic = $('[data-hero-static]');
-  const heroPick = $('[data-hero-pick]');
-  let heroInteract = 0, heroVisible = true, swapT = 0;
-
-  function setHero(i) {
-    const n = FAMILLES.length;
-    if (!n || !hero) return;
-    state.heroIdx = ((i % n) + n) % n;
-    const f = FAMILLES[state.heroIdx];
-    $('[data-u-n]').textContent = f.n;
-    $('[data-u-label]').textContent = 'Parfums ' + f.pluriel;
-    heroPick.style.setProperty('--c', f.color);
-    heroStatic.style.setProperty('--c', f.color);
-    uChips.forEach((c) => c.setAttribute('aria-pressed', String(+c.getAttribute('data-u') === state.heroIdx)));
-    if (!f.img || !heroImg || heroImg.getAttribute('src') === f.img) return;
-    clearTimeout(swapT);
-    if (calm() || state.hero3d) { heroImg.src = f.img; return; }
-    heroImg.classList.add('is-out');
-    swapT = setTimeout(() => {
-      const shown = () => heroImg.classList.remove('is-out');
-      heroImg.src = f.img;
-      if (heroImg.decode) heroImg.decode().then(shown, shown); else shown();
-    }, 220);
-  }
-  function heroNav(dir) {
-    heroInteract = Date.now();
-    if (state.hero3d) emit('hero:nav', { dir: dir });
-    else setHero(state.heroIdx + dir);
-  }
-  if (hero) {
-    $('[data-hero-prev]').addEventListener('click', () => heroNav(-1));
-    $('[data-hero-next]').addEventListener('click', () => heroNav(1));
-    uChips.forEach((c) => c.addEventListener('click', () => {
-      const i = +c.getAttribute('data-u');
-      heroInteract = Date.now();
-      setHero(i);
-      if (state.hero3d) emit('hero:goto', { index: i });
-    }));
-    heroPick.addEventListener('click', pickFamille);
-
-    // Messages de la scène 3D (js/hero3d.js).
-    window.addEventListener('hero:ready', () => {
-      state.hero3d = true;
-      hero.classList.add('is-3d');
-      emit('hero:goto', { index: state.heroIdx });
-    });
-    window.addEventListener('hero:fail', () => {
-      state.hero3d = false;
-      hero.classList.remove('is-3d');
-    });
-    window.addEventListener('hero:active', (e) => { if (e.detail) setHero(e.detail.index); });
-    window.addEventListener('hero:select', pickFamille);
-
-    // Sans 3D : le flacon change tout seul (pause après une interaction).
-    // Le bouton WhatsApp flottant reste caché tant que le héros occupe l'écran.
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver((es) => {
-        heroVisible = es[0].isIntersecting;
-        document.body.classList.toggle('is-hero-view', es[0].intersectionRatio > 0.35);
-      }, { threshold: [0, 0.35, 0.6] }).observe(hero);
-    }
-    setInterval(() => {
-      if (state.hero3d || calm() || document.hidden || !heroVisible || Date.now() - heroInteract < 7000) return;
-      setHero(state.heroIdx + 1);
-    }, 5200);
-    window.addEventListener('load', () => {
-      if (state.hero3d) return;
-      FAMILLES.forEach((f) => { if (f.img) { const im = new Image(); im.src = f.img; } });
-    });
+  if (hero && 'IntersectionObserver' in window) {
+    new IntersectionObserver((es) => {
+      document.body.classList.toggle('is-hero-view', es[0].intersectionRatio > 0.35);
+    }, { threshold: [0, 0.35, 0.6] }).observe(hero);
   }
 
   /* ---------- Copier le numéro MVola ---------- */

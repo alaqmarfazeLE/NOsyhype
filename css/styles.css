@@ -252,6 +252,30 @@ main:focus, [tabindex="-1"]:focus { outline: none; }
 .hero__bottle.is-out { opacity: 0; transform: translateY(10px) scale(.97); }
 @keyframes bob { 50% { translate: 0 -10px; } }
 
+/* Anneau de vrais flacons : il tourne tout seul, on le fait tourner au doigt ou à la souris (js/anneau.js). */
+.ring { position: absolute; inset: 0; z-index: 1; pointer-events: auto; touch-action: pan-y; cursor: grab; -webkit-user-select: none; user-select: none; }
+.ring.is-drag { cursor: grabbing; }
+.ring__glow { position: absolute; left: var(--gX, 50%); top: var(--gY, 45%); width: var(--gD, 420px); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--c, #E2C08D) 55%, transparent), transparent); opacity: .3; transition: background .8s var(--ease); }
+.ring__orbit { position: absolute; z-index: 100; left: var(--oL, 20%); top: var(--oT, 70%); width: var(--oW, 60%); height: var(--oH, 60px); border-radius: 50%; pointer-events: none;
+  border: 1px solid rgba(226, 192, 141, .35); box-shadow: 0 0 30px -6px var(--c, #E2C08D) inset, 0 0 24px -8px var(--c, #E2C08D); transition: box-shadow .8s var(--ease); }
+.ring__orb { position: absolute; left: 0; top: 0; width: var(--bw, 190px); height: var(--bh, 260px); transform-origin: 50% 100%; opacity: 0; transition: opacity .8s ease;
+  will-change: transform, opacity; -webkit-tap-highlight-color: transparent; -webkit-user-drag: none; }
+.ring__orb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; filter: drop-shadow(0 18px 22px rgba(0, 0, 0, .6)); -webkit-user-drag: none; }
+.ring__shadow { position: absolute; left: 6%; right: 6%; bottom: -6%; height: 12%; border-radius: 50%; background: radial-gradient(closest-side, rgba(226, 192, 141, .3), transparent); }
+.ring__orb:focus-visible { outline-offset: 6px; border-radius: 12px; }
+.hero.is-ring .hero__hud-row { visibility: visible; }
+.hero__hud, .hero__coords, .hero__deposit, .hero__pick { z-index: 2; }
+.hero__pick-txt { display: flex; flex-direction: column; gap: 4px; min-width: 0; text-align: left; }
+.hero__pick-brand { font: 500 9.5px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.hero__pick-name { max-width: 210px; overflow: hidden; text-overflow: ellipsis; font: 400 13px/1.15 var(--sans); }
+.ring__dots { display: flex; align-items: center; padding: 0 4px; }
+.ring__dot { display: grid; place-items: center; width: 18px; height: 28px; padding: 0; border: 0; background: none; transition: width .3s var(--ease); }
+.ring__dot::before { content: ''; width: 7px; height: 7px; border-radius: 999px; background: var(--line-3); transition: width .3s var(--ease), background-color .3s, box-shadow .3s; }
+.ring__dot:hover::before { background: var(--muted); }
+.ring__dot[aria-pressed="true"] { width: 30px; }
+.ring__dot[aria-pressed="true"]::before { width: 20px; background: var(--gold); box-shadow: 0 0 10px rgba(226, 192, 141, .6); }
+
 /* ---------- Barre de réassurance ---------- */
 .trust { position: relative; background: var(--bg); color: var(--text); }
 .trust__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); column-gap: 28px; }

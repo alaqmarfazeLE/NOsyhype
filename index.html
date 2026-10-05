@@ -26,20 +26,10 @@
 <link rel="preload" href="assets/fonts/notoserifdisplay-italic-300.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/sora-normal-300.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/dmmono-normal-500.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://fimgs.net">
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/icons.css">
 <link rel="stylesheet" href="css/boutique.css">
-<!-- Empreintes de sécurité de three.js (flacons 3D), vérifiées par les navigateurs récents. -->
-<script type="importmap">
-{
-  "integrity": {
-    "https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.min.js": "sha384-35WaVqXNGvw49+RCXk67Ci9ebo55/5+CfirDbAVSG21KV8/7gO4xwIkhA5ZRcUHc",
-    "https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.core.min.js": "sha384-/2vXInuUL2LKgd3n86c5RIzG+YC7vk3zYPTknaEkF2H2sauHtaOrS8swZ+MURxU6"
-  }
-}
-</script>
 </head>
 <body>
 <a class="skip" href="#contenu">Aller au contenu</a>
@@ -87,7 +77,6 @@
 
 
   <section class="hero" id="top" data-hero>
-    <canvas class="hero__canvas" data-hero-canvas role="img" aria-label="Flacons en verre en 3D, un par univers olfactif : glissez pour tourner"></canvas>
     <div class="hero__grid" aria-hidden="true"></div>
     <div class="hero__inner">
       <div class="hero__text">
@@ -115,13 +104,12 @@
         <div class="hero__stage" data-hero-stage>
           <span class="tick tick--tl"></span><span class="tick tick--tr"></span><span class="tick tick--bl"></span><span class="tick tick--br"></span>
           <span class="hero__scan" aria-hidden="true"></span>
-          <div class="hero__static" data-hero-static style="--c:#21D1CA" aria-hidden="true">
-            <span class="hero__glow"></span>
-            <span class="hero__floor"></span>
-            <img class="hero__bottle" data-hero-img src="assets/parfums/eros-hd.webp" alt="" fetchpriority="high">
+          <div class="ring" data-ring role="group" aria-label="Nos parfums en rotation : glissez pour tourner">
+            <span class="ring__glow" aria-hidden="true"></span>
+            <span class="ring__orbit" aria-hidden="true"></span>
           </div>
           <div class="hero__hud">
-            <span>Univers <strong data-u-n>01</strong> / 05</span>
+            <span>Parfum <strong data-ring-idx>01</strong> / <span data-ring-total>10</span></span>
             <span class="hero__hud-row"><span class="i i-rotate-3d"></span>Glissez pour tourner</span>
           </div>
           <span class="hero__coords" aria-hidden="true">18°55′S · 47°31′E</span>
@@ -130,19 +118,16 @@
             <span class="hero__deposit-v">50&nbsp;%</span>
             <span class="hero__deposit-s">à la commande</span>
           </div>
-          <button class="hero__pick" type="button" data-hero-pick style="--c:#21D1CA">
-            <span class="hero__pick-dot"></span><span data-u-label>Parfums frais</span>
+          <a class="hero__pick" href="https://wa.me/261380582719" data-ring-front target="_blank" rel="noopener" style="--c:#E2C08D">
+            <span class="hero__pick-dot"></span>
+            <span class="hero__pick-txt"><span class="hero__pick-brand" data-ring-brand>Dior</span><span class="hero__pick-name" data-ring-name>Sauvage</span></span>
             <span class="hero__pick-go"><span class="i i-arrow-up-right"></span></span>
-          </button>
+          </a>
         </div>
-        <div class="hero__controls" role="group" aria-label="Univers olfactifs">
-          <button class="round-btn" type="button" data-hero-prev aria-label="Univers précédent"><span class="i i-arrow-left"></span></button>
-          <button class="uchip" type="button" data-u="0" aria-pressed="true"><span class="dot" style="--c:#21D1CA"></span>Frais</button>
-          <button class="uchip" type="button" data-u="1" aria-pressed="false"><span class="dot" style="--c:#F77CB0"></span>Floral</button>
-          <button class="uchip" type="button" data-u="2" aria-pressed="false"><span class="dot" style="--c:#F5AE4B"></span>Oriental</button>
-          <button class="uchip" type="button" data-u="3" aria-pressed="false"><span class="dot" style="--c:#67D283"></span>Boisé</button>
-          <button class="uchip" type="button" data-u="4" aria-pressed="false"><span class="dot" style="--c:#F77C56"></span>Gourmand</button>
-          <button class="round-btn round-btn--gold" type="button" data-hero-next aria-label="Univers suivant"><span class="i i-arrow-right"></span></button>
+        <div class="hero__controls" role="group" aria-label="Parfums en rotation">
+          <button class="round-btn" type="button" data-ring-prev aria-label="Parfum précédent"><span class="i i-arrow-left"></span></button>
+          <div class="ring__dots" data-ring-dots></div>
+          <button class="round-btn round-btn--gold" type="button" data-ring-next aria-label="Parfum suivant"><span class="i i-arrow-right"></span></button>
         </div>
       </div>
     </div>
@@ -431,7 +416,7 @@
 <script src="js/parfums.js"></script>
 <script src="js/app.js"></script>
 <script src="js/boutique.js"></script>
+<script src="js/anneau.js"></script>
 <script src="js/carte.js"></script>
-<script type="module" async src="js/hero3d.js"></script>
 </body>
 </html>
