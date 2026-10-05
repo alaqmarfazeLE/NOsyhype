@@ -17,7 +17,7 @@ la page d'erreur dans `404.html`.
 
 | Fichier | Contenu |
 | --- | --- |
-| `js/config.js` | Nom de la boutique, numéro WhatsApp, numéro MVola, e-mail, villes du bandeau « Livraison » |
+| `js/config.js` | Nom de la boutique, numéro WhatsApp, numéro MVola, e-mail, Instagram, villes du bandeau « Livraison » |
 | `js/parfums.js` | Le catalogue de la boutique (151 parfums, 30 maisons), les flacons qui tournent sur l'accueil (`RING`) et les réglages d'affichage |
 | `js/univers.js` | Les 3 gammes de la rubrique « Nos gammes » |
 | `index.html` | Tous les textes ; le numéro y apparaît aussi en clair (à changer en même temps que `js/config.js`) |

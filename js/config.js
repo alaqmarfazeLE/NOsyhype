@@ -6,6 +6,7 @@ window.SHOP = {
   phone: '038 05 827 19',            // numéro affiché
   mvola: '0380582719',               // numéro copié par le bouton « Copier le numéro »
   email: 'alaqmarfazele579@gmail.com',
+  instagram: 'https://www.instagram.com/nosy_hype/',   // page Instagram (en-tête, Questions, pied de page)
   // Villes du bandeau « Livraison ».
   villes: ['Antananarivo', 'Toamasina', 'Mahajanga', 'Fianarantsoa', 'Toliara', 'Antsiranana', 'Nosy Be', 'Antsirabe',
     'Morondava', 'Taolagnaro', 'Sambava', 'Manakara', 'Ambatondrazaka', 'Farafangana', 'Maintirano']

@@ -97,6 +97,7 @@
     if (f) a.href = wa(f());
   });
   $$('[data-mail]').forEach((a) => { a.href = 'mailto:' + SHOP.email; });
+  if (SHOP.instagram) $$('[data-ig]').forEach((a) => { a.href = SHOP.instagram; });
 
   /* ---------- En-tête : menu mobile ---------- */
   const hdr = $('[data-hdr]');
