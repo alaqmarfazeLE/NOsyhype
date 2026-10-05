@@ -1,7 +1,7 @@
 # Nosy_Hype — *Le luxe à prix doux.*
 
 Site vitrine et boutique de la parfumerie **Nosy_Hype** : parfums homme, femme et mixte de toutes gammes,
-prix et disponibilité sur WhatsApp, acompte de 50 % via MVola, livraison partout à Madagascar.
+prix et disponibilité sur WhatsApp, acompte de 50 % via MVola, livraison partout à Madagascar et à Paris.
 
 Thème « Noir holographique » (repris du site nosyhype-parfums.netlify.app) : noir profond, or champagne,
 et, sur l'accueil, l'anneau de vrais flacons qui tourne. La boutique garde notre catalogue de 151 parfums.
@@ -67,7 +67,7 @@ js/parfums.js      catalogue
 js/app.js          en-tête, gammes, bandeaux, copie MVola
 js/anneau.js       accueil : l'anneau de flacons qui tourne
 js/boutique.js     boutique : recherche, filtres, défilement, grille
-js/carte.js        carte de Madagascar
+js/carte.js        carte de Madagascar (la petite carte de Paris est dans index.html)
 assets/fonts/      Noto Serif Display, Sora, DM Mono (licence SIL OFL)
 assets/parfums/    flacons détourés des gammes ; flacons/ : ceux de l'anneau de l'accueil
 ```
@@ -77,3 +77,4 @@ assets/parfums/    flacons détourés des gammes ; flacons/ : ceux de l'anneau d
 - Icônes [Lucide](https://lucide.dev) (ISC) et WhatsApp (Simple Icons, CC0)
 - Photos des flacons de la boutique : Fragrantica (`fimgs.net`) — à remplacer par vos photos ou les visuels officiels des marques
 - Contour de Madagascar : [Natural Earth](https://www.naturalearthdata.com) (domaine public)
+- Contour de Paris : IGN – Admin Express (Licence ouverte Etalab)

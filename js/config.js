@@ -9,5 +9,5 @@ window.SHOP = {
   instagram: 'https://www.instagram.com/nosy_hype/',   // page Instagram (en-tête, Questions, pied de page)
   // Villes du bandeau « Livraison ».
   villes: ['Antananarivo', 'Toamasina', 'Mahajanga', 'Fianarantsoa', 'Toliara', 'Antsiranana', 'Nosy Be', 'Antsirabe',
-    'Morondava', 'Taolagnaro', 'Sambava', 'Manakara', 'Ambatondrazaka', 'Farafangana', 'Maintirano']
+    'Morondava', 'Taolagnaro', 'Sambava', 'Manakara', 'Ambatondrazaka', 'Farafangana', 'Maintirano', 'Paris']
 };

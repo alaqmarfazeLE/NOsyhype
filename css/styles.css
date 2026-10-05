@@ -471,6 +471,30 @@ main:focus, [tabindex="-1"]:focus { outline: none; }
 @keyframes pulse { 0% { transform: scale(.5); opacity: .95; } 100% { transform: scale(3.4); opacity: 0; } }
 .map-fade { animation: fade-in 1.2s var(--ease) both; }
 @keyframes fade-in { from { opacity: 0; } }
+/* Petite carte de Paris, à côté de Madagascar. */
+.paris { position: absolute; left: 0; top: 0; z-index: 1; width: clamp(150px, 30%, 230px); display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 16px;
+  border: 1px solid var(--gold-line); border-radius: 16px; background: rgba(7, 7, 10, .55); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.paris::before, .paris::after { content: ''; position: absolute; width: 10px; height: 10px; border: 0 solid var(--gold); opacity: .7; }
+.paris::before { left: -1px; top: -1px; border-left-width: 1px; border-top-width: 1px; border-top-left-radius: 16px; }
+.paris::after { right: -1px; bottom: -1px; border-right-width: 1px; border-bottom-width: 1px; border-bottom-right-radius: 16px; }
+.paris__k { font: 500 10px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.delivery__map .paris__map { position: static; inset: auto; display: block; width: 100%; height: auto; overflow: visible; }
+.paris__shape { fill: rgba(161, 129, 239, .1); stroke: var(--gold); stroke-width: 1.2; stroke-linejoin: round; filter: drop-shadow(0 0 6px rgba(161, 129, 239, .45)); }
+.paris__seine { fill: none; stroke: var(--lagon); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; opacity: .9; }
+.paris__halo { fill: none; stroke: var(--gold-hi); stroke-width: 1.4; }
+.paris__dot { fill: var(--gold-hi); }
+.paris__name { font: 300 26px/1 var(--display); letter-spacing: .04em; text-transform: uppercase; }
+.paris__coords { margin-top: -2px; font: 500 9.5px/1 var(--mono); letter-spacing: .12em; color: var(--faint); }
+@media (max-width: 480px) {
+  .paris { width: 124px; gap: 6px; padding: 10px 11px 11px; border-radius: 14px; }
+  .paris__name { font-size: 19px; }
+  .paris__k, .paris__coords { font-size: 8px; letter-spacing: .1em; }
+}
+@media (max-width: 380px) {
+  .paris { width: 112px; }
+  .paris__k, .paris__coords { font-size: 7.5px; letter-spacing: .04em; white-space: nowrap; }
+}
+
 .cities { margin-top: clamp(40px, 5vw, 72px); padding: 26px 0; overflow: hidden; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .city { display: inline-flex; align-items: center; gap: 34px; padding-right: 34px; font: 300 clamp(26px, 3vw, 40px)/1 var(--display); letter-spacing: .02em; text-transform: uppercase; color: var(--muted); }
 .city .dot { --d: 6px; }
