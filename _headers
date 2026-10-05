@@ -1,0 +1,18 @@
+# Réglages Netlify : sécurité et mise en cache (fichier lu par Netlify, non publié).
+# Sans référent : nécessaire pour afficher les photos des flacons de la boutique (fimgs.net).
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Polices : ne changent jamais.
+/assets/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Photos des parfums : gardées un jour (pour remplacer une photo, lui donner un nouveau nom de fichier).
+/assets/parfums/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/partage.jpg
+  Cache-Control: public, max-age=86400

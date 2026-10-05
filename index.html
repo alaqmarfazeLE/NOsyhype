@@ -1,288 +1,437 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Nosy-Hype — Parfumerie à Madagascar · Faites tourner les têtes</title>
-  <meta name="description" content="Nosy-Hype : les grandes maisons de parfum, toutes les gammes, à prix raisonnables. Demandez le prix sur WhatsApp, acompte de 50 % via MVola, livraison partout à Madagascar.">
-  <meta name="theme-color" content="#0D1230">
-  <meta name="color-scheme" content="dark">
-  <!-- Les photos des flacons (fimgs.net) ne s'affichent que sans référent. -->
-  <meta name="referrer" content="no-referrer">
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="fr_FR">
-  <meta property="og:site_name" content="Nosy-Hype">
-  <meta property="og:title" content="Nosy-Hype — Faites tourner les têtes.">
-  <meta property="og:description" content="Les grandes maisons, toutes les gammes, à prix raisonnables. Livrées partout à Madagascar.">
-  <meta property="og:image" content="assets/img/og-image.jpg">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-
-  <link rel="preload" href="assets/fonts/cormorant-garamond-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/hanken-grotesk-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preconnect" href="https://images.pexels.com">
-  <link rel="preconnect" href="https://fimgs.net">
-  <link rel="preload" as="image" fetchpriority="high"
-    imagesrcset="https://images.pexels.com/photos/9396534/pexels-photo-9396534.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1000 1000w, https://images.pexels.com/photos/9396534/pexels-photo-9396534.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1600 1600w, https://images.pexels.com/photos/9396534/pexels-photo-9396534.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=2200 2200w"
-    imagesizes="100vw">
-  <link rel="stylesheet" href="assets/css/styles.css">
-  <script>document.documentElement.classList.add('js');</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nosy_Hype · Parfums à Madagascar — le luxe à prix doux</title>
+<meta name="description" content="Parfums homme, femme et mixte de toutes gammes. Prix et disponibilité sur WhatsApp, livraison partout à Madagascar, acompte de 50 % via MVola.">
+<meta name="theme-color" content="#07070A">
+<!-- Les photos des flacons de la boutique (fimgs.net) ne s’affichent que sans référent. -->
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Nosy_Hype">
+<meta property="og:title" content="Nosy_Hype · Le luxe à prix doux">
+<meta property="og:description" content="Parfums de toutes gammes, livrés partout à Madagascar. Prix sur WhatsApp, acompte 50 % via MVola.">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image" content="partage.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<!-- Une fois le site en ligne, ajoutez son adresse ici (voir LISEZ-MOI.md) :
+<meta property="og:url" content="https://VOTRE-ADRESSE/">
+<meta property="og:image" content="https://VOTRE-ADRESSE/partage.jpg">
+-->
+<link rel="preload" href="assets/fonts/notoserifdisplay-normal-300.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/notoserifdisplay-italic-300.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/sora-normal-300.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/dmmono-normal-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://fimgs.net">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/icons.css">
+<link rel="stylesheet" href="css/boutique.css">
+<!-- Empreintes de sécurité de three.js (flacons 3D), vérifiées par les navigateurs récents. -->
+<script type="importmap">
+{
+  "integrity": {
+    "https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.min.js": "sha384-35WaVqXNGvw49+RCXk67Ci9ebo55/5+CfirDbAVSG21KV8/7gO4xwIkhA5ZRcUHc",
+    "https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.core.min.js": "sha384-/2vXInuUL2LKgd3n86c5RIzG+YC7vk3zYPTknaEkF2H2sauHtaOrS8swZ+MURxU6"
+  }
+}
+</script>
 </head>
 <body>
-  <svg class="sprite" aria-hidden="true" focusable="false">
-    <symbol id="i-arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m-6-6 6 6-6 6"/></symbol>
-    <symbol id="i-arrow-ur" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7M8.5 7H17v8.5"/></symbol>
-    <symbol id="i-arrow-l" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m6-6-6 6 6 6"/></symbol>
-    <symbol id="i-arrow-up" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 19.5v-15m-6 6 6-6 6 6"/></symbol>
-    <symbol id="i-arrow-down" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m-6-6 6 6 6-6"/></symbol>
-    <symbol id="i-marquee" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 8.5h15m-3.5-3.5 3.5 3.5-3.5 3.5M20 15.5H5m3.5-3.5L5 15.5 8.5 19"/></symbol>
-    <symbol id="i-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/></g></symbol>
-    <symbol id="i-close" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
-  </svg>
+<a class="skip" href="#contenu">Aller au contenu</a>
+<div class="cursor-glow" data-cursor-glow aria-hidden="true"></div>
 
-  <a class="skip-link" href="#catalogue">Aller au catalogue</a>
+<div class="ticker" aria-hidden="true">
+  <div class="marquee__track" data-marquee="32">
+    <span class="ticker__item"><span class="dot"></span>Livraison partout à Madagascar</span>
+    <span class="ticker__item"><span class="dot"></span>Prix et disponibilité sur WhatsApp</span>
+    <span class="ticker__item"><span class="dot"></span>50&nbsp;% à la commande via MVola</span>
+    <span class="ticker__item"><span class="dot"></span>Toutes gammes, prix raisonnables</span>
+  </div>
+</div>
 
-  <header class="site-header" data-header>
-    <a class="brand" href="#top" aria-label="Nosy-Hype, retour à l’accueil">
-      <span class="brand__star" aria-hidden="true">✦</span>
-      <span class="brand__name">NOSY-HYPE</span>
-    </a>
-    <nav class="nav" aria-label="Navigation principale">
-      <a class="nav__link is-current" href="#top" data-nav="top" aria-current="location">Accueil</a>
-      <a class="nav__link" href="#catalogue" data-nav="catalogue">Catalogue</a>
-      <a class="nav__link" href="#livraison" data-nav="livraison">Livraison</a>
-      <a class="nav__link" href="#commander" data-nav="commander">Commander</a>
-      <a class="nav__link" href="#contact" data-nav="contact">Contact</a>
+<header class="hdr" data-hdr>
+  <div class="hdr__bar">
+    <nav class="hdr__nav" aria-label="Navigation principale">
+      <a class="hdr__link is-current" href="#top" data-nav>Accueil</a>
+      <a class="hdr__link" href="#boutique" data-nav>Boutique</a>
+      <a class="hdr__link" href="#gammes" data-nav>Gammes</a>
+      <a class="hdr__link" href="#commander" data-nav>Commander</a>
+      <a class="hdr__link" href="#livraison" data-nav>Livraison</a>
+      <button class="icon-btn hdr__burger" type="button" data-menu-toggle aria-expanded="false" aria-controls="menu" aria-label="Ouvrir le menu"><span class="i i-menu"></span></button>
     </nav>
-  </header>
-
-  <main>
-    <!-- ============ 01 ACCUEIL ============ -->
-    <section id="top" class="hero" data-hero aria-labelledby="hero-title">
-      <img class="hero__bg"
-        src="https://images.pexels.com/photos/9396534/pexels-photo-9396534.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=2200"
-        srcset="https://images.pexels.com/photos/9396534/pexels-photo-9396534.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1000 1000w, https://images.pexels.com/photos/9396534/pexels-photo-9396534.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1600 1600w, https://images.pexels.com/photos/9396534/pexels-photo-9396534.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=2200 2200w"
-        sizes="100vw" alt="" fetchpriority="high" draggable="false">
-      <div class="hero__veil" aria-hidden="true"></div>
-      <div class="hero__planet" aria-hidden="true"></div>
-      <div class="hero__orbit" aria-hidden="true"></div>
-      <span class="spark" aria-hidden="true" style="left:56%; top:17%; font-size:14px; color:rgba(255,255,255,.85)">✦</span>
-      <span class="spark" aria-hidden="true" style="left:86%; top:24%; font-size:9px; color:rgba(255,255,255,.7)">✦</span>
-      <span class="spark" aria-hidden="true" style="left:47%; top:72%; font-size:11px; color:rgba(255,255,255,.6)">✦</span>
-      <span class="spark" aria-hidden="true" style="left:91%; top:70%; font-size:16px; color:rgba(255,236,226,.8)">✦</span>
-      <span class="spark" aria-hidden="true" style="left:38%; top:11%; font-size:8px; color:rgba(255,255,255,.6)">✦</span>
-
-      <div class="hero__content" data-hero-title>
-        <div class="hero__text">
-          <p class="eyebrow eyebrow--hero"><span class="eyebrow__line"></span><span>Parfumerie · Madagascar</span></p>
-          <h1 id="hero-title" class="hero__title"><span>Faites tourner</span> <span>les têtes.</span></h1>
-          <p class="hero__lead">Les grandes maisons, toutes les gammes, à prix raisonnables. Livrées partout à Madagascar.</p>
-          <div class="hero__ctas">
-            <a class="btn btn--light btn--lg" data-cta href="#catalogue">Voir le catalogue<span class="btn__dot"><svg class="i"><use href="#i-arrow"/></svg></span></a>
-            <a class="link-ghost" data-cta data-wa="ask" href="https://wa.me/261380582719" target="_blank" rel="noopener"><span class="link-ghost__dot"><svg class="i"><use href="#i-arrow-ur"/></svg></span>Demander un parfum</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="hero__ring" data-ring role="group" aria-label="Sélection de parfums en rotation : glissez pour tourner"></div>
-
-      <div class="hero__label" data-label hidden>
-        <button class="round-btn hero__mob" type="button" data-cta data-ring-prev aria-label="Parfum précédent"><svg class="i"><use href="#i-arrow-l"/></svg></button>
-        <a class="glass-card" data-cta data-front href="https://wa.me/261380582719" target="_blank" rel="noopener">
-          <span class="glass-card__lead" aria-hidden="true"></span>
-          <span class="glass-card__body">
-            <span class="glass-card__brand" data-front-brand></span>
-            <span class="glass-card__name" data-front-name></span>
-            <span class="glass-card__hint">Demander le prix</span>
-          </span>
-          <span class="glass-card__go" aria-hidden="true"><svg class="i"><use href="#i-arrow-ur"/></svg></span>
-        </a>
-        <button class="round-btn hero__mob" type="button" data-cta data-ring-next aria-label="Parfum suivant"><svg class="i"><use href="#i-arrow"/></svg></button>
-      </div>
-
-      <div class="hero__counter hero__desk" data-counter hidden>
-        <button class="round-btn round-btn--sm" type="button" data-cta data-ring-prev aria-label="Parfum précédent"><svg class="i"><use href="#i-arrow-up"/></svg></button>
-        <span class="hero__counter-idx" data-front-idx>01</span>
-        <span class="hero__counter-line" aria-hidden="true"></span>
-        <span class="hero__counter-total" data-front-total>10</span>
-        <button class="round-btn round-btn--sm" type="button" data-cta data-ring-next aria-label="Parfum suivant"><svg class="i"><use href="#i-arrow-down"/></svg></button>
-      </div>
-
-      <a class="hero__delivery hero__desk" data-cta href="#livraison">
-        <span class="hero__delivery-img"><img src="https://images.pexels.com/photos/4153968/pexels-photo-4153968.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="" draggable="false"></span>
-        <span class="hero__delivery-text"><strong>Livraison partout à Madagascar</strong><span>De Nosy Be à Taolagnaro. Voir la carte →</span></span>
+    <a class="wordmark" href="#top" data-nav aria-label="Nosy_Hype, retour à l’accueil">
+      <span class="wordmark__name">Nosy_Hype</span>
+      <span class="wordmark__sub">Parfums · Madagascar</span>
+    </a>
+    <div class="hdr__actions">
+      <a class="hdr__wa" href="https://wa.me/261380582719" data-wa="hello" target="_blank" rel="noopener" aria-label="Écrire sur WhatsApp au 038 05 827 19">
+        <span class="wa-disc"><span class="i i-whatsapp"></span></span><span class="hdr__wa-num">038 05 827 19</span>
       </a>
-      <p class="hero__tagline hero__desk" aria-hidden="true"><span class="hero__tagline-line"></span><span>Plus qu’un parfum, <em>une signature.</em></span></p>
-    </section>
+    </div>
+  </div>
+  <nav class="hdr__menu" id="menu" data-menu aria-label="Menu" hidden>
+    <a href="#boutique" data-nav data-n="N°03">Boutique</a>
+    <a href="#gammes" data-nav data-n="N°02">Gammes</a>
+    <a href="#commander" data-nav data-n="N°04">Commander</a>
+    <a href="#livraison" data-nav data-n="N°05">Livraison</a>
+    <a href="#faq" data-nav data-n="N°08">Questions</a>
+  </nav>
+</header>
 
-    <!-- ============ 01b RÉASSURANCE ============ -->
-    <div class="assure">
-      <div class="wrap">
-        <ul class="assure__grid">
-          <li class="assure__item"><span class="assure__star" style="color:#FFC7A3" aria-hidden="true">✦</span><span class="assure__text"><span class="assure__k">Livraison</span><span class="assure__v">Partout à Madagascar</span></span></li>
-          <li class="assure__item"><span class="assure__star" style="color:#F2D58C" aria-hidden="true">✦</span><span class="assure__text"><span class="assure__k">Toutes les gammes</span><span class="assure__v">À prix raisonnables</span></span></li>
-          <li class="assure__item"><span class="assure__star" style="color:#F7AECB" aria-hidden="true">✦</span><span class="assure__text"><span class="assure__k">Paiement</span><span class="assure__v">Acompte de 50&nbsp;% via MVola</span></span></li>
-          <li class="assure__item assure__item--link"><a data-wa="ask" href="https://wa.me/261380582719" target="_blank" rel="noopener"><span class="assure__star" style="color:#A6E1F3" aria-hidden="true">✦</span><span class="assure__text"><span class="assure__k">Sur demande</span><span class="assure__v">Un parfum précis&nbsp;? Demandez-le&nbsp;↗</span></span></a></li>
-        </ul>
+<main id="contenu" tabindex="-1">
+
+
+  <section class="hero" id="top" data-hero>
+    <canvas class="hero__canvas" data-hero-canvas role="img" aria-label="Flacons en verre en 3D, un par univers olfactif : glissez pour tourner"></canvas>
+    <div class="hero__grid" aria-hidden="true"></div>
+    <div class="hero__inner">
+      <div class="hero__text">
+        <div class="hero__meta">
+          <span class="hero__hello" lang="mg">Tonga soa</span>
+          <span class="hero__rule"></span>
+          <span class="hero__live nowrap">Antananarivo · <span data-clock>--:--</span></span>
+        </div>
+        <div class="hero__main">
+          <p class="eyebrow">Parfums homme, femme &amp; mixte</p>
+          <h1 class="hero__title"><span>Le luxe</span> <span>à prix</span> <span class="hero__accent">doux.</span></h1>
+          <p class="hero__lead">Toutes les gammes. Prix sur WhatsApp. Livraison partout à Madagascar.</p>
+          <div class="hero__ctas">
+            <a class="btn-sable" href="#boutique" data-nav>Découvrir la boutique<span class="i i-arrow-right"></span></a>
+            <a class="btn-wa btn-wa--ghost" href="https://wa.me/261380582719" data-wa="ask" target="_blank" rel="noopener"><span class="wa-disc"><span class="i i-whatsapp"></span></span>Demander un prix</a>
+          </div>
+        </div>
+        <div class="hero__facts">
+          <span class="fact"><span class="dot" style="--c:#21D1CA"></span>Livraison toute l’île</span>
+          <span class="fact"><span class="dot" style="--c:#E2C08D"></span>Acompte MVola 50&nbsp;%</span>
+        </div>
+      </div>
+
+      <div class="hero__stagecol">
+        <div class="hero__stage" data-hero-stage>
+          <span class="tick tick--tl"></span><span class="tick tick--tr"></span><span class="tick tick--bl"></span><span class="tick tick--br"></span>
+          <span class="hero__scan" aria-hidden="true"></span>
+          <div class="hero__static" data-hero-static style="--c:#21D1CA" aria-hidden="true">
+            <span class="hero__glow"></span>
+            <span class="hero__floor"></span>
+            <img class="hero__bottle" data-hero-img src="assets/parfums/eros-hd.webp" alt="" fetchpriority="high">
+          </div>
+          <div class="hero__hud">
+            <span>Univers <strong data-u-n>01</strong> / 05</span>
+            <span class="hero__hud-row"><span class="i i-rotate-3d"></span>Glissez pour tourner</span>
+          </div>
+          <span class="hero__coords" aria-hidden="true">18°55′S · 47°31′E</span>
+          <div class="hero__deposit">
+            <span class="hero__deposit-k">Acompte MVola</span>
+            <span class="hero__deposit-v">50&nbsp;%</span>
+            <span class="hero__deposit-s">à la commande</span>
+          </div>
+          <button class="hero__pick" type="button" data-hero-pick style="--c:#21D1CA">
+            <span class="hero__pick-dot"></span><span data-u-label>Parfums frais</span>
+            <span class="hero__pick-go"><span class="i i-arrow-up-right"></span></span>
+          </button>
+        </div>
+        <div class="hero__controls" role="group" aria-label="Univers olfactifs">
+          <button class="round-btn" type="button" data-hero-prev aria-label="Univers précédent"><span class="i i-arrow-left"></span></button>
+          <button class="uchip" type="button" data-u="0" aria-pressed="true"><span class="dot" style="--c:#21D1CA"></span>Frais</button>
+          <button class="uchip" type="button" data-u="1" aria-pressed="false"><span class="dot" style="--c:#F77CB0"></span>Floral</button>
+          <button class="uchip" type="button" data-u="2" aria-pressed="false"><span class="dot" style="--c:#F5AE4B"></span>Oriental</button>
+          <button class="uchip" type="button" data-u="3" aria-pressed="false"><span class="dot" style="--c:#67D283"></span>Boisé</button>
+          <button class="uchip" type="button" data-u="4" aria-pressed="false"><span class="dot" style="--c:#F77C56"></span>Gourmand</button>
+          <button class="round-btn round-btn--gold" type="button" data-hero-next aria-label="Univers suivant"><span class="i i-arrow-right"></span></button>
+        </div>
       </div>
     </div>
+  </section>
 
-    <!-- ============ 02 CATALOGUE ============ -->
-    <section id="catalogue" class="section catalogue" aria-labelledby="cat-title" data-catalogue>
-      <div class="catalogue__glow" aria-hidden="true"></div>
-      <div class="wrap section__pad">
-        <div class="cat-head" data-cat-head>
-          <div class="cat-head__title">
-            <p class="eyebrow"><span class="eyebrow__line"></span><span>Catalogue</span><span class="eyebrow__count" data-cat-count></span></p>
-            <h2 id="cat-title" class="h2">Trouvez votre parfum.</h2>
-          </div>
-          <label class="search">
-            <span class="search__label">Recherche</span>
-            <input class="search__input" type="search" data-search enterkeyhint="search" autocomplete="off" aria-label="Rechercher un parfum ou une maison" placeholder="Libre, Khamrah, Valentino…">
-          </label>
+  <section class="trust" aria-label="Nos engagements">
+    <hr class="hairline">
+    <div class="container trust__grid">
+      <div class="trust__item"><span class="disc" style="--c:#21D1CA"><span class="i i-truck"></span></span><div class="trust__txt"><span class="trust__t">Livraison partout</span><span class="trust__d">Dans toute l’île, jusqu’à chez vous.</span></div></div>
+      <div class="trust__item"><span class="disc" style="--c:#25D366"><span class="i i-whatsapp"></span></span><div class="trust__txt"><span class="trust__t">Prix sur WhatsApp</span><span class="trust__d">Prix et disponibilité en un message.</span></div></div>
+      <div class="trust__item"><span class="disc" style="--c:#E2C08D"><span class="i i-wallet"></span></span><div class="trust__txt"><span class="trust__t">50&nbsp;% via MVola</span><span class="trust__d">Le solde à la réception.</span></div></div>
+      <div class="trust__item"><span class="disc" style="--c:#A181EF"><span class="i i-sparkles"></span></span><div class="trust__txt"><span class="trust__t">Toutes gammes</span><span class="trust__d">Des prix vraiment raisonnables.</span></div></div>
+    </div>
+    <hr class="hairline">
+  </section>
+
+  <section class="section gammes" id="gammes">
+    <div class="container gammes__wrap">
+      <div class="sec-head sec-head--center">
+        <span class="sec-index">N°02 — Gammes</span>
+        <p class="eyebrow">Nos gammes</p>
+        <h2 class="h2">Un parfum pour <span class="foil">chaque budget</span></h2>
+      </div>
+      <div class="gammes__row">
+        <p class="gammes__intro">Du quotidien aux grandes occasions&nbsp;: même exigence, prix justes. Choisissez votre gamme, on s’occupe du reste.</p>
+        <div class="gammes__grid" data-gammes></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section shop" id="boutique" data-ct>
+    <div class="container shop__wrap">
+      <div class="shop__head">
+        <div class="sec-head shop__title">
+          <span class="sec-index">N°03 — Boutique</span>
+          <p class="eyebrow">La boutique</p>
+          <h2 class="h2">Trouvez votre <span class="foil">signature</span></h2>
+          <p class="shop__note"><span class="i i-whatsapp"></span>Prix et disponibilité sur WhatsApp, en un message.</p>
+          <span class="count ct-total" data-ct-count>151 parfums · 30 maisons</span>
         </div>
+        <label class="search">
+          <span class="i i-search"></span>
+          <span class="sr-only">Rechercher un parfum ou une maison</span>
+          <input type="search" data-ct-search placeholder="Libre, Khamrah, Valentino…" autocomplete="off" enterkeyhint="search">
+          <button class="search__clear" type="button" data-ct-clear aria-label="Effacer la recherche" hidden><span class="i i-x"></span></button>
+        </label>
+      </div>
 
-        <div class="chips" data-chips role="group" aria-label="Filtrer par maison"></div>
+      <div class="chips" data-ct-chips role="group" aria-label="Filtrer par maison"></div>
 
-        <div class="cat-bar">
-          <div class="cat-bar__left">
-            <div class="seg" data-genders role="group" aria-label="Filtrer par genre"></div>
-            <div class="seg" data-views role="group" aria-label="Affichage du catalogue"></div>
-          </div>
-          <div class="cat-bar__right">
-            <span data-summary aria-live="polite"></span>
-            <button class="btn btn--outline btn--sm" type="button" data-reset hidden>Effacer les filtres<svg class="i"><use href="#i-close"/></svg></button>
-          </div>
+      <div class="ct-bar">
+        <div class="ct-bar__left">
+          <div class="seg" data-ct-genders role="group" aria-label="Pour qui"></div>
+          <div class="seg ct-views" data-ct-views role="group" aria-label="Affichage de la boutique"></div>
         </div>
-
-        <div class="cat-results" data-results></div>
-
-        <div class="cat-more" data-more-groups hidden>
-          <button class="btn btn--outline btn--md" type="button" data-action="more-groups"></button>
-        </div>
-
-        <div class="cat-empty" data-empty hidden>
-          <p class="cat-empty__title">Pas encore dans le catalogue.</p>
-          <p class="cat-empty__text">Demandez-le sur WhatsApp, nous vous répondons avec le prix.</p>
-          <div class="cat-empty__actions">
-            <a class="btn btn--light btn--md" data-empty-wa href="https://wa.me/261380582719" target="_blank" rel="noopener">Demander sur WhatsApp ↗</a>
-            <button class="btn btn--outline btn--md" type="button" data-action="reset">Effacer les filtres</button>
-          </div>
-        </div>
-
-        <noscript>
-          <p class="cat-empty__text" style="margin-top:32px">Activez JavaScript pour parcourir le catalogue, ou écrivez-nous sur WhatsApp au 038&nbsp;05&nbsp;827&nbsp;19.</p>
-        </noscript>
-
-        <div class="ask-banner">
-          <div class="ask-banner__body">
-            <p class="eyebrow eyebrow--sm"><span class="eyebrow__line"></span><span>Sur demande</span></p>
-            <h3 class="ask-banner__title">Vous ne trouvez pas votre parfum&nbsp;?</h3>
-            <p class="ask-banner__text">Envoyez-nous son nom sur WhatsApp. Nous vous répondons avec le prix.</p>
-            <a class="btn btn--light btn--lg" data-wa="ask" href="https://wa.me/261380582719" target="_blank" rel="noopener">Demander sur WhatsApp<span class="btn__dot"><svg class="i"><use href="#i-arrow-ur"/></svg></span></a>
-          </div>
+        <div class="ct-bar__right">
+          <span class="count" data-ct-summary aria-live="polite"></span>
+          <button class="gamme-pill" type="button" data-ct-reset hidden>Effacer les filtres<span class="i i-x"></span></button>
         </div>
       </div>
-    </section>
 
-    <!-- ============ 03 LIVRAISON ============ -->
-    <section id="livraison" class="section delivery" aria-labelledby="del-title">
-      <div class="delivery__stars" aria-hidden="true"></div>
-      <div class="delivery__glow" aria-hidden="true"></div>
-      <div class="wrap section__pad delivery__grid">
-        <div class="delivery__text">
-          <p class="eyebrow"><span class="eyebrow__line"></span><span>Livraison</span></p>
-          <h2 id="del-title" class="h2 h2--xl">Partout à Madagascar.</h2>
-          <p class="lead">D’Antsiranana à Taolagnaro, de Toamasina à Toliara&nbsp;: nous livrons dans toute l’île.</p>
-          <div class="delivery__cities">
-            <span class="kicker">Votre ville</span>
-            <div class="chips chips--sm" data-cities role="group" aria-label="Choisir votre ville">
-              <a class="chip chip--dashed" data-wa="other-city" href="https://wa.me/261380582719" target="_blank" rel="noopener">Autre ville ↗</a>
-            </div>
-          </div>
-          <a class="btn btn--light btn--lg delivery__cta" data-city-cta href="https://wa.me/261380582719" target="_blank" rel="noopener"><span data-city-label>Demander la livraison</span><span class="btn__dot"><svg class="i"><use href="#i-arrow-ur"/></svg></span></a>
-        </div>
-        <div class="delivery__map-wrap">
-          <div class="delivery__map" data-map></div>
+      <div class="ct-results" data-ct-results>
+        <noscript><p class="empty__d">Activez JavaScript pour voir les parfums, ou écrivez-nous sur WhatsApp au 038&nbsp;05&nbsp;827&nbsp;19.</p></noscript>
+      </div>
+
+      <div class="ct-more" data-ct-more-groups hidden>
+        <button class="pill pill--outline" type="button" data-action="more-groups"></button>
+      </div>
+
+      <div class="empty" data-ct-empty hidden>
+        <p class="empty__t">Pas encore dans le catalogue.</p>
+        <p class="empty__d">Demandez-le sur WhatsApp, nous vous répondons avec le prix.</p>
+        <div class="faq__links">
+          <a class="btn-wa btn-wa--gold" href="https://wa.me/261380582719" data-ct-empty-wa target="_blank" rel="noopener"><span class="wa-disc"><span class="i i-whatsapp"></span></span>Demander sur WhatsApp</a>
+          <button class="pill pill--outline" type="button" data-action="reset">Effacer les filtres</button>
         </div>
       </div>
-    </section>
 
-    <!-- ============ 04 COMMANDER ============ -->
-    <section id="commander" class="section order" aria-labelledby="order-title">
-      <img class="section__photo" src="https://images.pexels.com/photos/4153968/pexels-photo-4153968.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=2000" alt="" loading="lazy">
-      <div class="order__veil" aria-hidden="true"></div>
-      <div class="wrap order__pad">
-        <div class="order__intro">
-          <p class="eyebrow"><span class="eyebrow__line"></span><span>Commander</span></p>
-          <h2 id="order-title" class="h2 h2--xl">Simple comme un message.</h2>
-          <p class="lead lead--soft">Livraison partout à Madagascar, de Nosy Be à Taolagnaro.</p>
+      <div class="shop__more">
+        <a class="btn-sable btn-sable--wide" href="https://wa.me/261380582719" data-wa="ask" target="_blank" rel="noopener">Un parfum précis en tête&nbsp;? Demandez-le sur WhatsApp<span class="i i-arrow-up-right"></span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section steps" id="commander">
+    <div class="container steps__wrap">
+      <div class="steps__head">
+        <div class="sec-head">
+          <span class="sec-index">N°04 — Commander</span>
+          <p class="eyebrow">Comment commander</p>
+          <h2 class="h2">3 étapes, c’est tout.</h2>
         </div>
-        <ol class="steps">
-          <li class="step"><span class="step__n" style="--to:#FFC7A3">01</span><span class="step__t">Choisissez</span><span class="step__d">Dans le catalogue, ou demandez-nous le parfum que vous cherchez.</span></li>
-          <li class="step"><span class="step__n" style="--to:#F7AECB">02</span><span class="step__t">Demandez le prix</span><span class="step__d">Un clic sur «&nbsp;Demander le prix&nbsp;»&nbsp;: WhatsApp s’ouvre avec le nom du parfum déjà écrit.</span></li>
-          <li class="step"><span class="step__n" style="--to:#C3BBFF">03</span><span class="step__t">Versez 50&nbsp;% sur MVola</span><span class="step__d">L’acompte lance votre commande.</span></li>
-          <li class="step"><span class="step__n" style="--to:#A6E1F3">04</span><span class="step__t">Recevez-le</span><span class="step__d">Nous livrons partout à Madagascar.</span></li>
-        </ol>
+        <p>Votre commande est validée dès réception de l’acompte.</p>
+      </div>
+      <div class="steps__grid">
+        <div class="step">
+          <div class="step__top"><span class="step__n">01</span><span class="step__disc" style="--c:#21D1CA"><span class="i i-shopping-bag"></span></span></div>
+          <div class="step__body"><h3>Choisissez</h3><p>Trouvez votre parfum dans la boutique, ou demandez-nous celui que vous cherchez.</p></div>
+        </div>
+        <div class="step">
+          <div class="step__top"><span class="step__n">02</span><span class="step__disc" style="--c:#25D366"><span class="i i-whatsapp"></span></span></div>
+          <div class="step__body"><h3>Demandez le prix</h3><p>Un clic sur «&nbsp;Demander le prix&nbsp;»&nbsp;: WhatsApp s’ouvre avec le nom du parfum. Nous confirmons prix, disponibilité et livraison.</p></div>
+        </div>
+        <div class="step step--gold">
+          <div class="step__top"><span class="step__n">03</span><span class="step__disc"><span class="i i-wallet"></span></span></div>
+          <div class="step__body"><h3>Versez 50&nbsp;%</h3><p>Acompte par MVola au <strong>038 05 827 19</strong>, le solde à la réception.</p></div>
+        </div>
         <div class="mvola">
-          <div class="mvola__info">
-            <span class="mvola__k">Acompte de 50&nbsp;% · MVola</span>
-            <span class="mvola__num" data-shop="mvola">038 05 827 19</span>
-            <span class="mvola__d">Votre commande est lancée dès réception de l’acompte.</span>
-          </div>
-          <div class="mvola__actions">
-            <button class="btn btn--light btn--md" type="button" data-copy-mvola><span data-copy-label>Copier le numéro</span></button>
-            <a class="btn btn--glass btn--md" data-wa="order" href="https://wa.me/261380582719" target="_blank" rel="noopener">Commander sur WhatsApp ↗</a>
-          </div>
+          <span class="glow glow--a"></span><span class="glow glow--b"></span>
+          <span class="label mvola__k">Acompte MVola · 50&nbsp;%</span>
+          <span class="mvola__num">038 05 827 19</span>
+          <button class="btn-copy" type="button" data-copy><span class="i i-copy"></span><span data-copy-label>Copier le numéro</span></button>
+          <p class="mvola__note">Acompte uniquement sur ce numéro. Commande validée dès réception.</p>
         </div>
-      </div>
-    </section>
-
-    <!-- ============ 05 AVIS ============ -->
-    <section id="avis" class="section reviews" aria-labelledby="rev-title">
-      <div class="reviews__glow" aria-hidden="true"></div>
-      <div class="wrap section__pad">
-        <p class="eyebrow"><span class="eyebrow__line"></span><span>Avis clients</span></p>
-        <h2 id="rev-title" class="h2">Ils ont trouvé leur parfum.</h2>
-        <div class="reviews__grid" data-reviews></div>
-      </div>
-    </section>
-  </main>
-
-  <!-- ============ 06 CONTACT ============ -->
-  <footer id="contact" class="footer" aria-labelledby="contact-title">
-    <img class="section__photo" src="https://images.pexels.com/photos/1069480/pexels-photo-1069480.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=2000" alt="" loading="lazy">
-    <div class="footer__veil" aria-hidden="true"></div>
-    <div class="wrap footer__inner">
-      <div class="footer__top">
-        <div class="footer__intro">
-          <p class="eyebrow eyebrow--bright"><span class="eyebrow__line"></span><span>Contact</span></p>
-          <h2 id="contact-title" class="h2 h2--xxl">Prêt à faire tourner les têtes&nbsp;?</h2>
-          <p class="lead lead--bright">Écrivez-nous sur WhatsApp, nous vous répondons avec le prix.</p>
-        </div>
-        <a class="btn btn--light btn--xl" data-wa="hello" href="https://wa.me/261380582719" target="_blank" rel="noopener">Écrire sur WhatsApp<span class="btn__dot"><svg class="i"><use href="#i-arrow-ur"/></svg></span></a>
-      </div>
-      <dl class="footer__grid">
-        <div><dt>WhatsApp</dt><dd><a data-wa="hello" data-shop="whatsapp" href="https://wa.me/261380582719" target="_blank" rel="noopener">038 05 827 19</a></dd></div>
-        <div><dt>E-mail</dt><dd><a data-shop="email" href="mailto:alaqmarfazele579@gmail.com">alaqmarfazele579@gmail.com</a></dd></div>
-        <div><dt>Paiement</dt><dd>Acompte 50&nbsp;% via MVola</dd></div>
-        <div><dt>Livraison</dt><dd>Partout à Madagascar</dd></div>
-      </dl>
-      <div class="footer__wordmark" aria-hidden="true">NOSY-HYPE</div>
-      <div class="footer__legal">
-        <span>© <span data-year>2026</span> Nosy-Hype</span>
-        <span>Photos non contractuelles</span>
       </div>
     </div>
-  </footer>
+  </section>
 
-  <a class="wa-float" data-wa="hello" href="https://wa.me/261380582719" target="_blank" rel="noopener" aria-label="Commander sur WhatsApp">
-    <span class="wa-float__dot" aria-hidden="true"></span>
-    <span>WhatsApp</span>
-  </a>
+  <section class="delivery" id="livraison">
+    <div class="container delivery__row">
+      <div class="delivery__text">
+        <span class="sec-index">N°05 — Livraison</span>
+        <p class="eyebrow">Livraison</p>
+        <h2 class="h2">Partout à <span class="foil">Madagascar</span></h2>
+        <p class="lead">D’Antsiranana à Taolagnaro, votre parfum arrive jusqu’à vous.</p>
+        <ul class="facts">
+          <li><span class="i i-map-pin" style="--c:#21D1CA"></span>Toutes les villes, toutes les régions.</li>
+          <li><span class="i i-message-circle" style="--c:#F77CB0"></span>Frais et délai confirmés sur WhatsApp selon votre ville.</li>
+          <li><span class="i i-wallet" style="--c:#E2C08D"></span>50&nbsp;% à la commande, le solde à la réception.</li>
+        </ul>
+        <a class="btn-wa btn-wa--ghost" href="https://wa.me/261380582719" data-wa="city" target="_blank" rel="noopener"><span class="wa-disc"><span class="i i-whatsapp"></span></span>Vérifier ma ville</a>
+      </div>
+      <div class="delivery__map">
+        <svg data-map role="img" aria-label="Carte de Madagascar : villes livrées, d’Antsiranana à Taolagnaro"></svg>
+      </div>
+    </div>
+    <div class="cities" aria-hidden="true">
+      <div class="marquee__track" data-marquee="50" data-villes></div>
+    </div>
+  </section>
 
-  <script src="assets/js/catalogue.js"></script>
-  <script src="assets/js/madagascar.js"></script>
-  <script src="assets/js/main.js"></script>
+  <section class="ask" id="demande">
+    <span class="ask__aurora" aria-hidden="true"></span>
+    <div class="container ask__row">
+      <div class="ask__text">
+        <span class="sec-index">N°06 — Sur demande</span>
+        <p class="eyebrow">Sur demande</p>
+        <h2 class="ask__title">Votre parfum est à <span class="foil">un message.</span></h2>
+        <p class="ask__lead">Un parfum précis en tête&nbsp;? Envoyez-nous son nom&nbsp;: on le trouve pour vous.</p>
+        <div class="ask__cta">
+          <a class="btn-sable" href="https://wa.me/261380582719" data-wa="ask" target="_blank" rel="noopener"><span class="wa-disc wa-disc--sm"><span class="i i-whatsapp"></span></span>Demander sur WhatsApp</a>
+          <span class="ask__num">038 05 827 19</span>
+        </div>
+      </div>
+      <div class="bubbles" aria-hidden="true">
+        <div class="bubble bubble--out">Bonjour&nbsp;! Quel est le prix de ce parfum en 100&nbsp;ml&nbsp;?</div>
+        <div class="bubble bubble--in"><span>Avec plaisir&nbsp;! On vous envoie le prix. Vous êtes dans quelle ville&nbsp;?</span><span class="bubble__meta">Nosy_Hype · WhatsApp</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AVIS : exemples. Remplacez-les par de vrais avis de vos clients (avec leur accord),
+       puis retirez les étiquettes « Exemple » (<span class="review__flag">…</span>). -->
+  <section class="section reviews" aria-labelledby="avis-titre">
+    <div class="container reviews__wrap">
+      <div class="sec-head sec-head--center">
+        <span class="sec-index">N°07 — Avis</span>
+        <p class="eyebrow">Avis clients</p>
+        <h2 class="h2" id="avis-titre">Ils ont trouvé leur parfum</h2>
+      </div>
+      <div class="reviews__grid">
+        <figure class="review">
+          <figcaption class="review__head">
+            <span class="avatar" style="--c:#21D1CA" aria-hidden="true">FR</span>
+            <span class="review__who"><span class="review__name">Fanja R.</span><span class="review__city">Toamasina</span></span>
+            <span class="review__flag" title="Avis d’exemple, à remplacer par un vrai avis client">Exemple</span><span class="review__q" aria-hidden="true">“</span>
+          </figcaption>
+          <blockquote>Commande simple, colis reçu chez moi. Le parfum tient toute la journée.</blockquote>
+        </figure>
+        <figure class="review">
+          <figcaption class="review__head">
+            <span class="avatar" style="--c:#F5AE4B" aria-hidden="true">HA</span>
+            <span class="review__who"><span class="review__name">Hery A.</span><span class="review__city">Antananarivo</span></span>
+            <span class="review__flag" title="Avis d’exemple, à remplacer par un vrai avis client">Exemple</span><span class="review__q" aria-hidden="true">“</span>
+          </figcaption>
+          <blockquote>Je cherchais un parfum introuvable. Un message WhatsApp, et ils l’ont trouvé.</blockquote>
+        </figure>
+        <figure class="review">
+          <figcaption class="review__head">
+            <span class="avatar" style="--c:#F77CB0" aria-hidden="true">MT</span>
+            <span class="review__who"><span class="review__name">Miora T.</span><span class="review__city">Mahajanga</span></span>
+            <span class="review__flag" title="Avis d’exemple, à remplacer par un vrai avis client">Exemple</span><span class="review__q" aria-hidden="true">“</span>
+          </figcaption>
+          <blockquote>50&nbsp;% par MVola, le reste à la livraison&nbsp;: c’est rassurant. Je recommande.</blockquote>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section faq" id="faq">
+    <div class="container faq__row">
+      <div class="faq__intro">
+        <span class="sec-index">N°08 — Questions</span>
+        <p class="eyebrow">Questions</p>
+        <h2 class="h2">Tout est simple.</h2>
+        <p>Une autre question&nbsp;? Écrivez-nous.</p>
+        <div class="faq__links">
+          <a class="pill pill--gold" href="https://wa.me/261380582719" data-wa="hello" target="_blank" rel="noopener"><span class="i i-whatsapp"></span>WhatsApp</a>
+          <a class="pill pill--outline" href="mailto:alaqmarfazele579@gmail.com" data-mail><span class="i i-mail"></span>Email</a>
+        </div>
+      </div>
+      <div class="faq__list">
+        <details class="faq__item" name="faq" open>
+          <summary>Comment passer commande&nbsp;?<span class="faq__plus" aria-hidden="true"><span class="i i-plus"></span></span></summary>
+          <p>Choisissez votre parfum dans la boutique et appuyez sur «&nbsp;Demander le prix&nbsp;»&nbsp;: WhatsApp s’ouvre avec le message prêt. Nous vous confirmons le prix, la disponibilité et la livraison. Votre commande est validée dès réception de l’acompte de 50&nbsp;% par MVola au 038&nbsp;05&nbsp;827&nbsp;19.</p>
+        </details>
+        <details class="faq__item" name="faq">
+          <summary>Comment connaître le prix d’un parfum&nbsp;?<span class="faq__plus" aria-hidden="true"><span class="i i-plus"></span></span></summary>
+          <p>Appuyez sur «&nbsp;Demander le prix&nbsp;» sous le parfum&nbsp;: le message est déjà écrit, il suffit de l’envoyer. Nous vous répondons avec le prix et la disponibilité.</p>
+        </details>
+        <details class="faq__item" name="faq">
+          <summary>Quand est-ce que je paie le reste&nbsp;?<span class="faq__plus" aria-hidden="true"><span class="i i-plus"></span></span></summary>
+          <p>Les 50&nbsp;% restants se règlent à la livraison, à la réception de votre colis.</p>
+        </details>
+        <details class="faq__item" name="faq">
+          <summary>Livrez-vous dans ma ville&nbsp;?<span class="faq__plus" aria-hidden="true"><span class="i i-plus"></span></span></summary>
+          <p>Oui, partout à Madagascar. Les frais et le délai dépendent de votre ville&nbsp;: nous vous les confirmons sur WhatsApp avant l’envoi.</p>
+        </details>
+        <details class="faq__item" name="faq">
+          <summary>Je cherche un parfum précis.<span class="faq__plus" aria-hidden="true"><span class="i i-plus"></span></span></summary>
+          <p>Écrivez-nous son nom sur WhatsApp au 038&nbsp;05&nbsp;827&nbsp;19&nbsp;: nous le trouvons pour vous.</p>
+        </details>
+        <details class="faq__item" name="faq">
+          <summary>Comment vous contacter&nbsp;?<span class="faq__plus" aria-hidden="true"><span class="i i-plus"></span></span></summary>
+          <p>Sur WhatsApp au 038&nbsp;05&nbsp;827&nbsp;19, ou par email à alaqmarfazele579@gmail.com.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer" id="contact">
+  <div class="container footer__wrap">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <span class="footer__name">Nosy_Hype</span>
+        <p>Parfums de toutes gammes, livrés partout à Madagascar.</p>
+      </div>
+      <div class="footer__cols">
+        <nav class="footer__col" aria-label="Boutique">
+          <h3 class="label">Boutique</h3>
+          <a href="#boutique" data-nav>Tous les parfums</a>
+          <a href="#gammes" data-nav>Nos gammes</a>
+          <a href="#commander" data-nav>Comment commander</a>
+          <a href="#livraison" data-nav>Livraison</a>
+          <a href="#faq" data-nav>Questions</a>
+        </nav>
+        <div class="footer__col">
+          <h3 class="label">Contact</h3>
+          <a href="https://wa.me/261380582719" data-wa="hello" target="_blank" rel="noopener">WhatsApp · 038 05 827 19</a>
+          <a class="footer__mail" href="mailto:alaqmarfazele579@gmail.com" data-mail>alaqmarfazele579@gmail.com</a>
+        </div>
+        <div class="footer__col">
+          <h3 class="label">Commande</h3>
+          <span>Prix sur WhatsApp</span>
+          <span>MVola · acompte 50&nbsp;%</span>
+          <span>Solde à la livraison</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© <span data-year>2026</span> Nosy_Hype Parfums · Madagascar</span>
+      <span>18°55′S · 47°31′E</span>
+    </div>
+  </div>
+</footer>
+
+<a class="fab" href="https://wa.me/261380582719" data-wa="ask" target="_blank" rel="noopener" aria-label="Un parfum précis ? Écrivez-nous sur WhatsApp">
+  <span class="wa-disc"><span class="i i-whatsapp"></span></span>
+  <span class="fab__txt" aria-hidden="true"><span class="fab__t">Un prix, un parfum&nbsp;?</span><span class="fab__d">Écrivez-nous sur WhatsApp</span></span>
+</a>
+
+<script src="js/config.js"></script>
+<script src="js/univers.js"></script>
+<script src="js/parfums.js"></script>
+<script src="js/app.js"></script>
+<script src="js/boutique.js"></script>
+<script src="js/carte.js"></script>
+<script type="module" async src="js/hero3d.js"></script>
 </body>
 </html>

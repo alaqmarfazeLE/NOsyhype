@@ -1,0 +1,87 @@
+/* Nosy_Hype — la boutique (catalogue des parfums), aux couleurs du thème « Noir holographique ».
+   Rangées qui défilent par maison, ou grille ; plateaux pastel pour les photos sur fond blanc. */
+
+.ct-total { color: var(--gold); }
+
+/* Filtres */
+.ct-chip-count { font: 500 11px/1 var(--mono); color: var(--faint); }
+.chip[aria-pressed="true"] .ct-chip-count { color: var(--gold); }
+.seg button { display: inline-flex; align-items: center; gap: 7px; }
+.seg button .i { --s: 13px; }
+.ct-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px 16px; }
+.ct-bar__left, .ct-bar__right { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.ct-views button[aria-pressed="true"] { background: rgba(226, 192, 141, .12); color: var(--gold-hi); box-shadow: 0 0 0 1px var(--gold-line) inset; }
+
+/* Téléphone : les maisons tiennent sur une ligne qu'on fait glisser. */
+@media (max-width: 640px) {
+  [data-ct-chips] {
+    flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none;
+    margin-left: calc(-1 * var(--gutter)); margin-right: calc(-1 * var(--gutter)); padding: 2px var(--gutter);
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 88%, transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 88%, transparent 100%);
+  }
+  [data-ct-chips]::-webkit-scrollbar { display: none; }
+  [data-ct-chips] .chip { flex: none; }
+}
+
+/* Résultats */
+.ct-results { display: flex; flex-direction: column; }
+.ct-results.is-defile { gap: clamp(36px, 4vw, 56px); }
+.ct-results.is-grid { gap: clamp(44px, 5vw, 68px); }
+.ct-results:empty { display: none; }
+.ct-group { display: flex; flex-direction: column; gap: 18px; }
+.ct-group__head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.ct-group__dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+.ct-group__name { margin: 0; font: 300 clamp(24px, 2.6vw, 38px)/1.05 var(--display); letter-spacing: -.005em; text-transform: uppercase; color: var(--text); }
+.ct-group__count { font: 500 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+.ct-group__open { margin-left: auto; }
+.ct-more-btn { align-self: center; padding: 14px 22px; }
+.ct-more { display: flex; justify-content: center; }
+.ct-more .pill { padding: 15px 24px; font-size: 14px; }
+
+/* Défilement continu */
+.ct-marquee {
+  position: relative; overflow: hidden; margin: 0 calc(-1 * var(--gutter)); padding: 4px 0 12px;
+  touch-action: pan-y; cursor: grab; -webkit-user-select: none; user-select: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+}
+.ct-marquee.is-dragging { cursor: grabbing; }
+.ct-marquee.is-static { cursor: auto; -webkit-mask-image: none; mask-image: none; }
+.ct-track { position: relative; display: flex; gap: 14px; width: max-content; padding: 0 var(--gutter); will-change: transform; }
+.ct-marquee.is-static .ct-track { width: auto; flex-wrap: wrap; will-change: auto; }
+.ct-marquee .ct-card { flex: none; width: clamp(210px, 18vw, 260px); }
+
+/* Grille */
+.ct-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(160px, 22vw, 280px), 1fr)); gap: clamp(10px, 1.2vw, 16px); }
+.ct-grid .ct-card { transition: transform .5s var(--ease), border-color .4s, box-shadow .4s; }
+.ct-grid .ct-card:hover { transform: translateY(-4px); border-color: var(--gold-line); box-shadow: 0 24px 60px -24px rgba(226, 192, 141, .35); }
+
+/* Carte parfum */
+.ct-card {
+  display: flex; flex-direction: column; min-width: 0; padding: 8px; border-radius: var(--radius);
+  border: 1px solid var(--line); background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .015));
+}
+.ct-card__plate { position: relative; aspect-ratio: 4 / 5; border-radius: 16px; overflow: hidden; isolation: isolate; perspective: 900px; background: var(--plate); }
+.ct-card__plate img {
+  position: absolute; left: 8%; top: 5%; width: 84%; height: 86%; object-fit: contain; mix-blend-mode: multiply; -webkit-user-drag: none;
+  transform: translateY(calc(var(--lift, 0) * -12px)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(calc(1 + var(--lift, 0) * .05));
+  transition: transform .45s var(--ease);
+}
+.ct-card__ph { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; font: 300 32px/1 var(--display); color: #4A4F7A; }
+.ct-card__plate.is-broken img { display: none; }
+.ct-card__plate.is-broken .ct-card__ph { display: flex; }
+.ct-card__tag {
+  position: absolute; top: 10px; left: 10px; padding: 6px 10px; border-radius: 999px; background: rgba(7, 7, 10, .88); color: var(--gold-hi);
+  font: 500 9.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase;
+}
+.ct-card__body { flex: 1; display: flex; flex-direction: column; gap: 7px; padding: 14px 8px 4px; }
+.ct-card__brand { font: 500 10.5px/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.ct-card__name { margin: 0; font: 400 17px/1.3 var(--sans); color: var(--text); text-wrap: balance; }
+.ct-card__meta { font: 500 10.5px/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+.ct-card__notes { font: 300 13px/1.55 var(--sans); color: var(--muted); text-wrap: pretty; }
+.ct-card__ask { flex: none; margin: 12px 2px 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ct-card__plate img, .ct-grid .ct-card { transition-duration: .01s; }
+}
